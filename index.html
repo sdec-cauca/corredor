@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitrina Digital de Emprendimientos</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --color-bg: #111827;
+            --color-bg-light: #1f2937;
+            --color-text: #e5e7eb;
+            --color-primary: #38bdf8;
+            --color-secondary: #a78bfa;
+            --color-glass: rgba(31, 41, 55, 0.6);
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        #three-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header { text-align: center; padding: 4rem 0; }
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .header p { font-size: 1.1rem; color: #9ca3af; }
+
+        .filters-container {
+            padding: 1.5rem;
+            background: var(--color-glass);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .search-input, .filter-select {
+            background-color: var(--color-bg-light);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .search-input { flex-grow: 1; min-width: 200px; }
+        .filter-select { flex-basis: 200px; flex-grow: 1; }
+        .search-input::placeholder { color: #9ca3af; }
+        .search-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); }
+        .filter-select:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .loading-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 3rem;
+        }
+
+        .company-card {
+            background-color: var(--color-bg-light);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .company-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1);
+        }
+        .card-banner { height: 180px; width: 100%; object-fit: cover; }
+        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
+        .company-name { font-size: 1.25rem; font-weight: 600; }
+        
+        .card-product-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .card-product-badge {
+            background-color: var(--color-bg);
+            color: #d1d5db;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+        }
+
+        .company-category {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            color: #fff;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: auto;
+            align-self: flex-start;
+        }
+        .no-results { text-align: center; padding: 3rem; grid-column: 1 / -1; font-size: 1.2rem; }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .modal.is-active { display: flex; }
+        .modal-content {
+            background-color: var(--color-bg-light);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            max-width: 650px;
+            width: 100%;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: rgba(0,0,0,0.5); border: none;
+            color: var(--color-text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 10;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-carousel {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            margin-bottom: 1.5rem;
+        }
+        #modal-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+        }
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .carousel-arrow:hover { background-color: rgba(0,0,0,0.8); }
+        .carousel-arrow.prev { left: 1rem; }
+        .carousel-arrow.next { right: 1rem; }
+
+        .modal-main-content { padding: 0 1rem 1rem 1rem; }
+        
+        .modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); }
+        #modal-name { font-size: 1.8rem; font-weight: 600; }
+        
+        .product-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .product-badge {
+            background-color: var(--color-bg);
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 300;
+        }
+        #modal-description {
+            color: #d1d5db;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); display: inline; }
+        .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
+        
+        .whatsapp-link {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.5rem;
+            color: #25D366;
+            transition: transform 0.2s;
+        }
+        .whatsapp-link:hover { transform: scale(1.1); }
+        .whatsapp-link svg { width: 20px; height: 20px; }
+
+        #modal-socials {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-bg-light);
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .social-link {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .social-link:hover { color: var(--color-primary); }
+        .social-link svg { width: 24px; height: 24px; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 640px) {
+            .header h1 { font-size: 2.2rem; }
+            .filters-container { flex-direction: column; }
+            .modal-body { grid-template-columns: 1fr; }
+            #modal-name { font-size: 1.5rem; }
+            .modal-content { padding: 0.5rem; }
+            .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="three-canvas"></canvas>
+
+    <div class="container">
+        <header class="header">
+            <h1>Vitrina de Emprendimientos</h1>
+            <p>Conectando ideas, impulsando el futuro.</p>
+        </header>
+
+        <div class="filters-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Buscar en toda la vitrina...">
+            <select id="sectorFilter" class="filter-select">
+                <option value="todos">Todos los Sectores</option>
+            </select>
+            <select id="categoryFilter" class="filter-select" disabled>
+                <option value="todos">Seleccione un sector</option>
+            </select>
+            <select id="locationFilter" class="filter-select">
+                <option value="todos">Todas las Ubicaciones</option>
+            </select>
+        </div>
+
+        <main id="showcase-grid" class="showcase-grid">
+            <p class="loading-message">Cargando emprendimientos...</p>
+        </main>
+    </div>
+
+    <div id="company-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-carousel">
+                <img id="modal-image" src="" alt="Imagen del emprendimiento">
+                <button class="carousel-arrow prev" id="prevBtn">&lt;</button>
+                <button class="carousel-arrow next" id="nextBtn">&gt;</button>
+            </div>
+            <div class="modal-main-content">
+                <button id="modal-close-btn" class="modal-close">&times;</button>
+                <div class="modal-header">
+                    <img id="modal-logo" src="" alt="Logo del emprendimiento">
+                    <div>
+                        <h2 id="modal-name"></h2>
+                    </div>
+                </div>
+                <div id="modal-products" class="product-badges"></div>
+                <p id="modal-description"></p>
+                <div class="modal-body">
+                    <div><strong>Representante Legal:</strong><p id="modal-representative"></p></div>
+                    <div id="modal-phone-container"><strong>Teléfono de Contacto:</strong></div>
+                    <div><strong>Ubicación:</strong><p id="modal-location"></p></div>
+                    <div><strong>Correo Electrónico:</strong><p id="modal-email"></p></div>
+                    <div><strong>Dirección:</strong><p id="modal-address"></p></div>
+                    <div><strong>Constituido Legalmente:</strong><p id="modal-constituted"></p></div>
+                </div>
+                <div id="modal-socials"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+    
+    // =================================================================================
+    // CONFIGURACIÓN - ¡Pega tu URL de Google Sheets aquí!
+    // =================================================================================
+    const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pubhtml';
+    // =================================================================================
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Almacenará los datos una vez cargados
+        let emprendimientos = [];
+
+        // Referencias a elementos del DOM
+        const grid = document.getElementById('showcase-grid');
+        const searchInput = document.getElementById('searchInput');
+        const sectorFilter = document.getElementById('sectorFilter');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const locationFilter = document.getElementById('locationFilter');
+        const modal = document.getElementById('company-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let currentModalItem = null;
+        let currentImageIndex = 0;
+
+        // Función para normalizar texto
+        const normalizeText = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+        // Función para renderizar las tarjetas
+        const renderCards = (items) => {
+            grid.innerHTML = '';
+            if (items.length === 0) {
+                grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos con estos criterios.</p>`;
+                return;
+            }
+
+            let shuffledItems = [...items];
+            for (let i = shuffledItems.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledItems[i], shuffledItems[j]] = [shuffledItems[j], shuffledItems[i]];
+            }
+
+            shuffledItems.forEach((item) => {
+                const card = document.createElement('div');
+                card.className = 'company-card';
+                card.innerHTML = `
+                    <img src="${item.imagenes[0]}" alt="Banner de ${item.nombreEmprendimiento}" class="card-banner">
+                    <div class="card-content">
+                        <div class="card-header">
+                            <img src="${item.logo}" alt="Logo de ${item.nombreEmprendimiento}" class="company-logo">
+                            <h2 class="company-name">${item.nombreEmprendimiento}</h2>
+                        </div>
+                        <div class="card-product-badges">
+                            ${item.productos.map(p => `<span class="card-product-badge">${p}</span>`).join('')}
+                        </div>
+                        <span class="company-category">${item.categoria}</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => openModal(item));
+                grid.appendChild(card);
+            });
+        };
+        
+        // Función para poblar los filtros
+        const populateFilters = () => {
+            const mainSectors = ["Sector Primario", "Sector Secundario", "Sector Terciario", "Sector Cuaternario"];
+            mainSectors.forEach(sector => {
+                sectorFilter.innerHTML += `<option value="${sector}">${sector}</option>`;
+            });
+            
+            const locations = [...new Set(emprendimientos.map(item => item.municipio))];
+            locations.sort().forEach(location => {
+                locationFilter.innerHTML += `<option value="${location}">${location}</option>`;
+            });
+        };
+        
+        // Lógica de filtros
+        const handleSectorChange = () => {
+            const selectedSector = sectorFilter.value;
+            categoryFilter.innerHTML = ''; 
+            
+            if (selectedSector === 'todos') {
+                categoryFilter.innerHTML = '<option value="todos">Seleccione un sector</option>';
+                categoryFilter.disabled = true;
+            } else {
+                categoryFilter.disabled = false;
+                categoryFilter.innerHTML = '<option value="todos">Todas las Categorías</option>';
+                const relevantEmprendimientos = emprendimientos.filter(item => item.sectorPrimario === selectedSector);
+                const categories = [...new Set(relevantEmprendimientos.map(item => item.categoria))];
+                categories.sort().forEach(category => {
+                    categoryFilter.innerHTML += `<option value="${category}">${category}</option>`;
+                });
+            }
+            applyFilters();
+        };
+
+        const applyFilters = () => {
+            const searchTerm = normalizeText(searchInput.value);
+            const selectedSector = sectorFilter.value;
+            const selectedCategory = categoryFilter.value;
+            const selectedLocation = locationFilter.value;
+
+            const filteredItems = emprendimientos.filter(item => {
+                const searchableContent = [
+                    item.nombreEmprendimiento, ...item.productos, item.descripcion, item.categoria, item.sectorPrimario,
+                    item.municipio, item.nombreRepresentante, item.direccion, item.email, item.telefono
+                ].join(' ').toLowerCase();
+                const matchesSearch = searchTerm === '' || normalizeText(searchableContent).includes(searchTerm);
+                
+                const matchesSector = selectedSector === 'todos' || item.sectorPrimario === selectedSector;
+                const matchesCategory = selectedCategory === 'todos' || item.categoria === selectedCategory;
+                const matchesLocation = selectedLocation === 'todos' || item.municipio === selectedLocation;
+
+                return matchesSearch && matchesSector && matchesCategory && matchesLocation;
+            });
+            renderCards(filteredItems);
+        };
+        
+        // Lógica del modal
+        const openModal = (item) => {
+            currentModalItem = item;
+            currentImageIndex = 0;
+            
+            document.getElementById('modal-logo').src = item.logo;
+            document.getElementById('modal-name').textContent = item.nombreEmprendimiento;
+            document.getElementById('modal-description').textContent = item.descripcion;
+            document.getElementById('modal-representative').textContent = item.nombreRepresentante;
+            document.getElementById('modal-location').textContent = item.municipio;
+            document.getElementById('modal-email').textContent = item.email;
+            document.getElementById('modal-address').textContent = item.direccion;
+            document.getElementById('modal-constituted').textContent = item.constituido;
+            
+            const phoneContainer = document.getElementById('modal-phone-container');
+            const cleanPhone = item.telefono.replace(/\D/g, '');
+            phoneContainer.innerHTML = `
+                <strong>Teléfono de Contacto:</strong>
+                <p>${item.telefono}</p>
+                <a href="https://wa.me/${cleanPhone}" target="_blank" class="whatsapp-link" title="Contactar por WhatsApp">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg>
+                </a>`;
+
+            const productsContainer = document.getElementById('modal-products');
+            productsContainer.innerHTML = item.productos.map(p => `<span class="product-badge">${p}</span>`).join('');
+            
+            const socialsContainer = document.getElementById('modal-socials');
+            socialsContainer.innerHTML = '';
+            if (item.instagram) {
+                socialsContainer.innerHTML += `
+                    <a href="${item.instagram}" target="_blank" class="social-link" title="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+                    </a>`;
+            }
+            if (item.facebook) {
+                socialsContainer.innerHTML += `
+                    <a href="${item.facebook}" target="_blank" class="social-link" title="Facebook">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg>
+                    </a>`;
+            }
+
+            updateCarouselImage();
+            modal.classList.add('is-active');
+        };
+
+        const updateCarouselImage = () => {
+            if (currentModalItem) {
+                document.getElementById('modal-image').src = currentModalItem.imagenes[currentImageIndex];
+            }
+        };
+
+        const closeModal = () => {
+            modal.classList.remove('is-active');
+            currentModalItem = null;
+        };
+
+        // --- FUNCIÓN PRINCIPAL ASÍNCRONA PARA CARGAR DATOS ---
+        async function initializeApp() {
+            try {
+                const response = await fetch(googleSheetURL);
+                if (!response.ok) { throw new Error('Network response was not ok ' + response.statusText); }
+                const csvText = await response.text();
+                
+                // Parsear CSV
+                const rows = csvText.trim().split('\n');
+                const headers = rows.shift().split(',').map(h => h.trim());
+                
+                emprendimientos = rows.map(row => {
+                    const values = row.split(',');
+                    const obj = headers.reduce((acc, header, index) => {
+                        acc[header] = values[index].trim();
+                        return acc;
+                    }, {});
+
+                    // Procesar campos que son arrays o nulos
+                    obj.productos = obj.productos.split(';').map(p => p.trim());
+                    obj.imagenes = obj.imagenes.split(';').map(url => url.trim());
+                    obj.instagram = obj.instagram === 'NULL' ? null : obj.instagram;
+                    obj.facebook = obj.facebook === 'NULL' ? null : obj.facebook;
+                    
+                    return obj;
+                });
+
+                // Una vez cargados los datos, inicializar la app
+                populateFilters();
+                renderCards(emprendimientos);
+                
+                // Añadir event listeners después de tener los datos
+                searchInput.addEventListener('input', applyFilters);
+                sectorFilter.addEventListener('change', handleSectorChange);
+                categoryFilter.addEventListener('change', applyFilters);
+                locationFilter.addEventListener('change', applyFilters);
+                
+            } catch (error) {
+                grid.innerHTML = `<p class="loading-message">Error al cargar los datos. Verifica la URL de la hoja de cálculo y que esté publicada correctamente.</p>`;
+                console.error('Error fetching or parsing sheet data:', error);
+            }
+        }
+
+        // --- INICIALIZACIÓN ---
+        initializeApp();
+        
+        // Event listeners del modal (pueden ser independientes de la carga de datos)
+        modalCloseBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+        prevBtn.addEventListener('click', () => {
+            if (currentModalItem) {
+                currentImageIndex = (currentImageIndex - 1 + currentModalItem.imagenes.length) % currentModalItem.imagenes.length;
+                updateCarouselImage();
+            }
+        });
+        nextBtn.addEventListener('click', () => {
+            if (currentModalItem) {
+                currentImageIndex = (currentImageIndex + 1) % currentModalItem.imagenes.length;
+                updateCarouselImage();
+            }
+        });
+    });
+    
+    // --- MÓDULO DE THREE.JS ---
+    (() => {
+        const canvas = document.getElementById('three-canvas'); if (!canvas) return;
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        const particlesGeometry = new THREE.BufferGeometry;
+        const count = 5000;
+        const positions = new Float32Array(count * 3);
+        for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 10; }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, sizeAttenuation: true, color: new THREE.Color('#38bdf8') });
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
+        camera.position.z = 5;
+        const clock = new THREE.Clock();
+        const animate = () => {
+            const elapsedTime = clock.getElapsedTime();
+            particles.rotation.y = elapsedTime * 0.05;
+            particles.rotation.x = elapsedTime * 0.05;
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(animate);
+        };
+        animate();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+    })();
+    </script>
+</body>
+</html>
