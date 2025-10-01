@@ -151,18 +151,49 @@
         .showcase-grid.view-list .company-category { margin-top: 0; text-align: center; flex-shrink: 0; width: 150px; }
         .showcase-grid.view-list .company-location { display: block; flex-shrink: 0; width: 150px; text-align: right; }
 
-        /* --- MODAL (SIN CAMBIOS) --- */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
+        /* --- MODAL --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal.is-active { display: flex; }
-        .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
+        
+        /* --- CAMBIO 1: AJUSTES PARA EL SCROLL INTERNO DEL POPUP --- */
+        .modal-content {
+            background-color: var(--color-bg-light);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            max-width: 650px;
+            width: 100%;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 90vh;
+            overflow: visible; /* Mantenido para el ribbon */
+            
+            /* Propiedades Flexbox para controlar el scroll */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Espacio entre carrusel y contenido */
+        }
+        
+        .modal-carousel {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            flex-shrink: 0; /* Evita que el carrusel se encoja */
+        }
+
+        .modal-main-content {
+            padding: 0; /* Padding del padre es suficiente */
+            overflow-y: auto; /* Habilita el scroll solo en esta área */
+            min-height: 0; /* Permite que el elemento se encoja correctamente */
+        }
+        /* --- FIN CAMBIO 1 --- */
+
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .modal-carousel { position: relative; width: 100%; height: 250px; margin-bottom: 1.5rem; }
         #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
         .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
         .carousel-arrow:hover { background-color: rgba(0,0,0,0.8); }
         .carousel-arrow.prev { left: 1rem; }
         .carousel-arrow.next { right: 1rem; }
-        .modal-main-content { padding: 0 1rem 1rem 1rem; }
         .modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); }
         #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; }
@@ -188,11 +219,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
         /* --- ESTILO PARA LA CINTA DE LA BANDERA DEL CAUCA --- */
-        .modal-content {
-            overflow: visible;
-        }
-        
-        /* --- CAMBIO 2: Posición del Ribbon ajustada --- */
         .modal-content::before {
             content: '';
             position: absolute;
@@ -209,7 +235,6 @@
             );
             transform: rotate(-45deg);
             transform-origin: 0 0;
-            /* Posición ajustada para que esté "más adentro" */
             top: 28px;
             left: -30px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
@@ -224,7 +249,7 @@
             .view-controls { width: 100%; justify-content: center; } 
             .modal-body { grid-template-columns: 1fr; } 
             #modal-name { font-size: 1.5rem; } 
-            .modal-content { padding: 0.5rem; } 
+            .modal-content { padding: 0.5rem; gap: 1rem; }
             .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
             .showcase-grid.view-list .card-content { flex-wrap: wrap; }
             .showcase-grid.view-list .card-header { flex-basis: 100%; }
@@ -315,25 +340,18 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
 
-        // --- INICIO: FUNCIÓN PARA PROCESAR URLS DE IMAGEN ---
         const processImageUrl = (url) => {
             if (!url) return '';
-            // Detecta si es una URL de Google Drive en varios formatos
             if (url.includes('drive.google.') || url.includes('drive.usercontent.google.')) {
-                // Extrae el ID del archivo usando una expresión regular
                 const match = url.match(/[?&]id=([^&]+)/);
                 if (match && match[1]) {
                     const fileId = match[1];
-                    // Devuelve la URL en el formato estándar para visualización directa
                     return `https://drive.google.com/uc?export=view&id=${fileId}`;
                 }
             }
-            // Si no es una URL de Drive reconocible, la devuelve tal cual
             return url;
         };
-        // --- FIN: FUNCIÓN PARA PROCESAR URLS DE IMAGEN ---
 
-        // --- PDF Generation (No changes here) ---
         async function getBase64FromUrl(url) {
             if (!url) return null;
             const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
@@ -504,8 +522,8 @@
                 emprendimientos = parseCSV(csvText).map(item => ({
                     ...item,
                     productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
-                    // Se aplica la nueva función a cada URL en el array de imágenes
                     imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
+                    logo: processImageUrl(item.logo)
                 }));
                 populateFilters(); renderCards(emprendimientos.sort(() => .5 - Math.random()));
                 searchInput.addEventListener('input', applyFilters); sectorFilter.addEventListener('change', handleSectorChange); categoryFilter.addEventListener('change', applyFilters); locationFilter.addEventListener('change', applyFilters);
@@ -519,7 +537,7 @@
         document.querySelectorAll('.view-btn').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active')); button.classList.add('active');
-                grid.className = 'showcase-grid'; // Reset class
+                grid.className = 'showcase-grid';
                 if (button.id === 'view-mosaic-btn') grid.classList.add('view-mosaic');
                 if (button.id === 'view-list-btn') grid.classList.add('view-list');
             });
