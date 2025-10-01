@@ -241,7 +241,7 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
 
-        // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF (ROBUSTA Y CORREGIDA) ---
+        // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF ---
 
         async function getBase64FromUrl(url) {
             if (!url) return null;
@@ -265,7 +265,7 @@
             return null;
         }
 
-        function getRoundedImageBase64(base64, radius) {
+        function getCircularImageBase64(base64) {
             return new Promise((resolve) => {
                 if (!base64) return resolve(null);
                 const img = new Image();
@@ -273,13 +273,14 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
+                    const size = Math.min(img.naturalWidth, img.naturalHeight);
+                    canvas.width = size;
+                    canvas.height = size;
                     ctx.beginPath();
-                    ctx.arc(img.width / 2, img.height / 2, Math.min(img.width, img.height) / 2, 0, Math.PI * 2, true);
+                    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
                     ctx.closePath();
                     ctx.clip();
-                    ctx.drawImage(img, 0, 0);
+                    ctx.drawImage(img, 0, 0, size, size);
                     resolve(canvas.toDataURL('image/jpeg', 0.9));
                 };
                 img.onerror = () => resolve(null);
@@ -302,7 +303,7 @@
                 const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 
                 const logoBase64Raw = await getBase64FromUrl(companyData.logo);
-                const logoBase64Circular = await getRoundedImageBase64(logoBase64Raw);
+                const logoBase64Circular = await getCircularImageBase64(logoBase64Raw);
 
                 const addHeaderFooter = () => {
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
@@ -358,17 +359,9 @@
 
                 if (companyData.instagram || companyData.facebook) {
                     startY = addSectionTitle("Redes Sociales", startY);
-                    
                     const socialData = [];
-                    const socialLinks = {}; // Para almacenar la URL correspondiente a cada red
-                    if (companyData.instagram) {
-                        socialData.push(['Instagram', 'Visitar Perfil']);
-                        socialLinks['Instagram'] = companyData.instagram;
-                    }
-                    if (companyData.facebook) {
-                        socialData.push(['Facebook', 'Visitar Perfil']);
-                        socialLinks['Facebook'] = companyData.facebook;
-                    }
+                    if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]);
+                    if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
                     
                     doc.autoTable({
                         startY,
@@ -376,14 +369,17 @@
                         body: socialData,
                         theme: 'grid',
                         headStyles: { fillColor: primaryColor },
-                        didDrawCell: (data) => {
+                        willDrawCell: (data) => {
+                            // Previene que autotable dibuje la celda del enlace
                             if (data.section === 'body' && data.column.index === 1) {
-                                const socialNetwork = data.row.cells[0].text[0]; // "Instagram" o "Facebook"
-                                const url = socialLinks[socialNetwork];
-                                if (url) {
-                                    doc.setTextColor(40, 90, 190);
-                                    doc.textWithLink(data.cell.text[0], data.cell.x + 2, data.cell.y + data.cell.height / 1.5, { url: url });
-                                }
+                                return false;
+                            }
+                        },
+                        didDrawCell: (data) => {
+                            // Dibuja el enlace manualmente solo una vez
+                            if (data.section === 'body' && data.column.index === 1) {
+                                doc.setTextColor(40, 90, 190); // Color azul de enlace
+                                doc.textWithLink(data.cell.raw, data.cell.x + 2, data.cell.y + data.cell.height / 1.5, { url: data.cell.raw });
                             }
                         }
                     });
