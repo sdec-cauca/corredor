@@ -374,7 +374,7 @@
                 
                 if (companyData.descripcion) {
                     startY = addSectionTitle("Descripción", startY);
-                    const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2));
+                    const descriptionLines = doc.splitTextToSize(sanitizeText(c.descripcion), pageWidth - (margin * 2));
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(descriptionLines, margin, startY);
                     startY += (descriptionLines.length * 5) + 10;
                 }
