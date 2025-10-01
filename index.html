@@ -110,11 +110,9 @@
         .view-btn.active { background-color: var(--color-primary); border-color: var(--color-primary); color: var(--color-bg); }
         .view-btn.active svg { opacity: 1; }
 
-        /* --- ESTILOS GENERALES DE LA CUADRÍCULA --- */
         .showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
         .loading-message, .no-results { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; }
         
-        /* --- ESTILOS DE TARJETA PREDETERMINADA --- */
         .company-card { background-color: var(--color-bg-light); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; position: relative; }
         .company-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1); }
         .card-banner { height: 180px; width: 100%; object-fit: cover; }
@@ -122,12 +120,11 @@
         .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
         .company-name { font-size: 1.25rem; font-weight: 600; }
-        .company-location { display: none; /* Oculto por defecto, visible en la vista de lista */ font-size: 0.9rem; color: #9ca3af; }
+        .company-location { display: none; }
         .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
         .card-product-badge { background-color: var(--color-bg); color: #d1d5db; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; }
         .company-category { display: inline-block; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-top: auto; align-self: flex-start; }
 
-        /* --- VISTA MOSAICO (MEJORADA) --- */
         .showcase-grid.view-mosaic { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.2rem; }
         .showcase-grid.view-mosaic .company-card { border-radius: 0; }
         .showcase-grid.view-mosaic .company-card:hover { transform: none; box-shadow: none; z-index: 10; }
@@ -138,7 +135,6 @@
         .showcase-grid.view-mosaic .company-category { display: none; }
         .showcase-grid.view-mosaic .company-name { font-size: 1rem; }
 
-        /* --- VISTA LISTA (MEJORADA TIPO TABLA) --- */
         .showcase-grid.view-list { grid-template-columns: 1fr; gap: 0.5rem; }
         .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; min-height: auto; padding: 1rem 1.5rem; transition: background-color 0.3s; }
         .showcase-grid.view-list .company-card:hover { transform: none; background-color: var(--color-bg); }
@@ -152,10 +148,10 @@
         .showcase-grid.view-list .company-location { display: block; flex-shrink: 0; width: 150px; text-align: right; }
 
         /* --- MODAL --- */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        /* --- CAMBIO 1: SE RESTAURA EL SCROLL DEL MODAL COMPLETO --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
         .modal.is-active { display: flex; }
         
-        /* --- CAMBIO 1: AJUSTES PARA EL SCROLL INTERNO DEL POPUP --- */
         .modal-content {
             background-color: var(--color-bg-light);
             padding: 1rem;
@@ -165,28 +161,44 @@
             position: relative;
             animation: fadeIn 0.3s ease-in-out;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 90vh;
-            overflow: visible; /* Mantenido para el ribbon */
-            
-            /* Propiedades Flexbox para controlar el scroll */
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem; /* Espacio entre carrusel y contenido */
+            max-height: 90vh; /* La altura máxima se controla aquí */
+            overflow-y: auto; /* El scroll del contenido vuelve al contenedor principal */
+            overflow-x: hidden; /* Evita desbordamiento horizontal */
         }
         
         .modal-carousel {
             position: relative;
             width: 100%;
             height: 250px;
-            flex-shrink: 0; /* Evita que el carrusel se encoja */
+            margin-bottom: 1.5rem; /* Se restaura el margen */
         }
-
-        .modal-main-content {
-            padding: 0; /* Padding del padre es suficiente */
-            overflow-y: auto; /* Habilita el scroll solo en esta área */
-            min-height: 0; /* Permite que el elemento se encoja correctamente */
-        }
+        .modal-main-content { padding: 0 1rem 1rem 1rem; }
         /* --- FIN CAMBIO 1 --- */
+
+        /* --- CAMBIO 2: NUEVO DISEÑO DE RIBBON INTERNO --- */
+        .modal-content {
+            overflow: hidden; /* Importante para que el clip-path funcione con el border-radius */
+        }
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100px;
+            height: 100px;
+            /* Gradiente diagonal para que los colores se vean bien en el triángulo */
+            background: linear-gradient(
+                135deg,
+                #fcd116 33.3%,
+                #009639 33.3%, 
+                #009639 66.6%,
+                #ce1126 66.6%
+            );
+            /* Crea la forma de triángulo */
+            clip-path: polygon(0 0, 100% 0, 0 100%);
+            z-index: 5;
+        }
+        /* --- FIN CAMBIO 2 --- */
 
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
@@ -218,38 +230,13 @@
         .social-link svg { width: 24px; height: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* --- ESTILO PARA LA CINTA DE LA BANDERA DEL CAUCA --- */
-        .modal-content::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 120px;
-            height: 30px; 
-            background: linear-gradient(
-                to bottom, 
-                #fcd116 33.3%,
-                #009639 33.3%, 
-                #009639 66.6%,
-                #ce1126 66.6%
-            );
-            transform: rotate(-45deg);
-            transform-origin: 0 0;
-            top: 28px;
-            left: -30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-            border: 1px solid rgba(0,0,0,0.1);
-            z-index: 5; 
-        }
-
-        /* --- ESTILOS RESPONSIVE GENERALES --- */
         @media (max-width: 640px) { 
             .header h1 { font-size: 2.2rem; } 
             .filters-container { flex-direction: column; align-items: stretch; } 
             .view-controls { width: 100%; justify-content: center; } 
             .modal-body { grid-template-columns: 1fr; } 
             #modal-name { font-size: 1.5rem; } 
-            .modal-content { padding: 0.5rem; gap: 1rem; }
+            .modal-content { padding: 0.5rem; }
             .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
             .showcase-grid.view-list .card-content { flex-wrap: wrap; }
             .showcase-grid.view-list .card-header { flex-basis: 100%; }
@@ -340,37 +327,44 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
 
+        // --- CAMBIO 3: SOLUCIÓN DEFINITIVA PARA IMÁGENES DE DRIVE CON PROXY ---
         const processImageUrl = (url) => {
             if (!url) return '';
+            
             if (url.includes('drive.google.') || url.includes('drive.usercontent.google.')) {
                 const match = url.match(/[?&]id=([^&]+)/);
                 if (match && match[1]) {
                     const fileId = match[1];
-                    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                    const standardUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                    // Se antepone un proxy CORS para evitar el bloqueo del navegador
+                    return `https://corsproxy.io/?${encodeURIComponent(standardUrl)}`;
                 }
             }
             return url;
         };
+        // --- FIN CAMBIO 3 ---
 
         async function getBase64FromUrl(url) {
             if (!url) return null;
+            // No es necesario un proxy aquí si ya lo estamos usando en processImageUrl,
+            // pero se mantiene para la generación de PDF por si acaso.
             const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
-            for (const proxy of proxies) {
-                try {
-                    const fetchUrl = proxy + encodeURIComponent(url);
-                    const response = await fetch(fetchUrl, { cache: "no-store" });
-                    if (!response.ok) throw new Error('Response not OK');
-                    const blob = await response.blob();
-                    return new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
-                    });
-                } catch (error) { console.warn(`Proxy ${proxy.split('/')[2]} falló para ${url}, intentando siguiente.`); }
+            const finalUrl = url.includes('corsproxy.io') ? url : proxies[0] + encodeURIComponent(url);
+
+            try {
+                const response = await fetch(finalUrl, { cache: "no-store" });
+                if (!response.ok) throw new Error('Response not OK');
+                const blob = await response.blob();
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(blob);
+                });
+            } catch (error) {
+                console.error(`Fallo al obtener la imagen: ${url}`, error);
+                return null;
             }
-            console.error(`Todos los proxies fallaron para la imagen: ${url}`);
-            return null;
         }
         function getRoundedImageBase64(base64, radius) {
             return new Promise((resolve) => {
@@ -523,7 +517,7 @@
                     ...item,
                     productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
                     imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
-                    logo: processImageUrl(item.logo)
+                    logo: processImageUrl(item.logo) // Se aplica también al logo
                 }));
                 populateFilters(); renderCards(emprendimientos.sort(() => .5 - Math.random()));
                 searchInput.addEventListener('input', applyFilters); sectorFilter.addEventListener('change', handleSectorChange); categoryFilter.addEventListener('change', applyFilters); locationFilter.addEventListener('change', applyFilters);
