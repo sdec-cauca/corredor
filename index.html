@@ -68,7 +68,7 @@
             flex-wrap: wrap;
             margin-bottom: 3rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            align-items: center; /* <<< NUEVO: para alinear los iconos */
+            align-items: center; 
         }
 
         .search-input, .filter-select {
@@ -87,11 +87,10 @@
         .search-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); }
         .filter-select:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
 
-        /* --- INICIO: NUEVOS ESTILOS PARA ICONOS DE VISTA --- */
         .view-controls {
             display: flex;
             gap: 0.5rem;
-            margin-left: auto; /* Empuja los iconos a la derecha */
+            margin-left: auto; 
         }
         .view-btn {
             background-color: var(--color-bg-light);
@@ -113,7 +112,6 @@
             color: var(--color-bg);
         }
         .view-btn.active svg { opacity: 1; }
-        /* --- FIN: NUEVOS ESTILOS PARA ICONOS DE VISTA --- */
 
         .showcase-grid {
             display: grid;
@@ -121,33 +119,27 @@
             gap: 2rem;
         }
         
-        /* --- INICIO: NUEVOS ESTILOS PARA VISTAS ALTERNATIVAS --- */
         .showcase-grid.view-mosaic { gap: 0.25rem; }
-        .showcase-grid.view-list { grid-template-columns: 1fr; }
+        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 1rem; }
         .showcase-grid.view-list .company-card {
             flex-direction: row;
             align-items: center;
         }
         .showcase-grid.view-list .card-banner {
             width: 150px;
-            height: 150px;
+            height: 100%;
+            min-height: 150px;
             object-fit: cover;
         }
         .showcase-grid.view-list .card-content {
-            padding: 1.5rem;
+            padding: 1rem 1.5rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
             flex-grow: 1;
         }
-        /* --- FIN: NUEVOS ESTILOS PARA VISTAS ALTERNATIVAS --- */
 
-        .loading-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            font-size: 1.2rem;
-            padding: 3rem;
-        }
+        .loading-message { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; }
         .company-card {
             background-color: var(--color-bg-light);
             border-radius: var(--border-radius);
@@ -158,207 +150,58 @@
             display: flex;
             flex-direction: column;
         }
-        .company-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1);
-        }
+        .company-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1); }
         .card-banner { height: 180px; width: 100%; object-fit: cover; }
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
         .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
         .company-name { font-size: 1.25rem; font-weight: 600; }
         
-        .card-product-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-bottom: 1rem;
-        }
-        .card-product-badge {
-            background-color: var(--color-bg);
-            color: #d1d5db;
-            padding: 0.2rem 0.6rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-        }
-
-        .company-category {
-            display: inline-block;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
-            color: #fff;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: auto;
-            align-self: flex-start;
-        }
+        .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+        .card-product-badge { background-color: var(--color-bg); color: #d1d5db; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; }
+        .company-category { display: inline-block; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-top: auto; align-self: flex-start; }
         .no-results { text-align: center; padding: 3rem; grid-column: 1 / -1; font-size: 1.2rem; }
 
-        .modal {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1rem;
-            overflow-y: auto;
-        }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
         .modal.is-active { display: flex; }
-        .modal-content {
-            background-color: var(--color-bg-light);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            max-width: 650px;
-            width: 100%;
-            position: relative;
-            animation: fadeIn 0.3s ease-in-out;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-close {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            background: rgba(0,0,0,0.5); border: none;
-            color: var(--color-text);
-            font-size: 1.5rem;
-            cursor: pointer;
-            line-height: 1;
-            z-index: 10;
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         
-        .modal-carousel {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            margin-bottom: 1.5rem;
-        }
-        #modal-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: var(--border-radius);
-        }
-        .carousel-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
-        }
+        .modal-carousel { position: relative; width: 100%; height: 250px; margin-bottom: 1.5rem; }
+        #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
+        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
         .carousel-arrow:hover { background-color: rgba(0,0,0,0.8); }
         .carousel-arrow.prev { left: 1rem; }
         .carousel-arrow.next { right: 1rem; }
 
         .modal-main-content { padding: 0 1rem 1rem 1rem; }
-        
         .modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); }
-        #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; } /* <<< MODIFICADO */
+        #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; }
         
-        /* --- INICIO: NUEVO ESTILO PARA BOTÓN DE DESCARGA PDF --- */
-        #download-pdf-btn {
-            background: none;
-            border: none;
-            color: var(--color-primary);
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        #download-pdf-btn:hover {
-            background-color: rgba(56, 189, 248, 0.1);
-            transform: scale(1.1);
-        }
-        #download-pdf-btn svg {
-            width: 24px;
-            height: 24px;
-            display: block;
-        }
-        /* --- FIN: NUEVO ESTILO PARA BOTÓN DE DESCARGA PDF --- */
+        #download-pdf-btn { background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background-color 0.3s, transform 0.3s; }
+        #download-pdf-btn:hover { background-color: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
+        #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+        #download-pdf-btn svg { width: 24px; height: 24px; display: block; }
 
-        .product-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .product-badge {
-            background-color: var(--color-bg);
-            padding: 0.3rem 0.8rem;
-            border-radius: 999px;
-            font-size: 0.8rem;
-            font-weight: 300;
-        }
-        #modal-description {
-            color: #d1d5db;
-            margin-bottom: 2rem;
-            line-height: 1.6;
-        }
+        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
+        #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
         .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); display: inline; }
         .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
         
-        .whatsapp-link {
-            display: inline-flex;
-            align-items: center;
-            margin-left: 0.5rem;
-            color: #25D366;
-            transition: transform 0.2s;
-        }
+        .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
         .whatsapp-link:hover { transform: scale(1.1); }
         .whatsapp-link svg { width: 20px; height: 20px; }
 
-        #modal-socials {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--color-bg-light);
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-        .social-link {
-            color: #9ca3af;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
+        #modal-socials { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 1.5rem; align-items: center; }
+        .social-link { color: #9ca3af; text-decoration: none; transition: color 0.2s; }
         .social-link:hover { color: var(--color-primary); }
         .social-link svg { width: 24px; height: 24px; }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 640px) {
-            .header h1 { font-size: 2.2rem; }
-            .filters-container { flex-direction: column; }
-            .view-controls { margin-left: 0; width: 100%; justify-content: center; } /* <<< NUEVO */
-            .modal-body { grid-template-columns: 1fr; }
-            #modal-name { font-size: 1.5rem; }
-            .modal-content { padding: 0.5rem; }
-            .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 640px) { .header h1 { font-size: 2.2rem; } .filters-container { flex-direction: column; } .view-controls { margin-left: 0; width: 100%; justify-content: center; } .modal-body { grid-template-columns: 1fr; } #modal-name { font-size: 1.5rem; } .modal-content { padding: 0.5rem; } .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; } }
     </style>
 </head>
 <body>
@@ -373,34 +216,18 @@
 
         <div class="filters-container">
             <input type="text" id="searchInput" class="search-input" placeholder="Buscar en toda la vitrina...">
-            <select id="sectorFilter" class="filter-select">
-                <option value="todos">Todos los Sectores</option>
-            </select>
-            <select id="categoryFilter" class="filter-select" disabled>
-                <option value="todos">Seleccione un sector</option>
-            </select>
-            <select id="locationFilter" class="filter-select">
-                <option value="todos">Todas las Ubicaciones</option>
-            </select>
+            <select id="sectorFilter" class="filter-select"> <option value="todos">Todos los Sectores</option> </select>
+            <select id="categoryFilter" class="filter-select" disabled> <option value="todos">Seleccione un sector</option> </select>
+            <select id="locationFilter" class="filter-select"> <option value="todos">Todas las Ubicaciones</option> </select>
             
-            <!-- INICIO: NUEVO BLOQUE DE ICONOS DE VISTA -->
             <div class="view-controls">
-                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                </button>
-                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg>
-                </button>
-                <button id="view-list-btn" class="view-btn" title="Vista de Lista">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-                </button>
+                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
+                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
+                <button id="view-list-btn" class="view-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
             </div>
-            <!-- FIN: NUEVO BLOQUE DE ICONOS DE VISTA -->
         </div>
 
-        <main id="showcase-grid" class="showcase-grid">
-            <p class="loading-message">Cargando emprendimientos...</p>
-        </main>
+        <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Cargando emprendimientos...</p> </main>
     </div>
 
     <div id="company-modal" class="modal">
@@ -415,11 +242,9 @@
                 <div class="modal-header">
                     <img id="modal-logo" src="" alt="Logo del emprendimiento">
                     <h2 id="modal-name"></h2>
-                    <!-- INICIO: NUEVO BOTÓN DE DESCARGA PDF -->
                     <button id="download-pdf-btn" title="Descargar Ficha">
                         <svg fill="currentColor" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
                     </button>
-                    <!-- FIN: NUEVO BOTÓN DE DESCARGA PDF -->
                 </div>
                 <div id="modal-products" class="product-badges"></div>
                 <p id="modal-description"></p>
@@ -437,22 +262,13 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- INICIO: NUEVAS LIBRERÍAS PARA PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <!-- FIN: NUEVAS LIBRERÍAS PARA PDF -->
     <script>
-    // =================================================================================
-    // CONFIGURACIÓN - ¡Pega tu URL de Google Sheets aquí!
-    // =================================================================================
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
-    // =================================================================================
 
     document.addEventListener('DOMContentLoaded', () => {
-        // Almacenará los datos una vez cargados
         let emprendimientos = [];
-
-        // Referencias a elementos del DOM
         const grid = document.getElementById('showcase-grid');
         const searchInput = document.getElementById('searchInput');
         const sectorFilter = document.getElementById('sectorFilter');
@@ -462,102 +278,197 @@
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        
-        // --- INICIO: NUEVAS REFERENCIAS A BOTONES DE VISTA Y DESCARGA ---
         const viewCardBtn = document.getElementById('view-card-btn');
         const viewMosaicBtn = document.getElementById('view-mosaic-btn');
         const viewListBtn = document.getElementById('view-list-btn');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        // --- FIN: NUEVAS REFERENCIAS ---
+        const downloadPdfBtnIcon = downloadPdfBtn.innerHTML; // Guardar el icono original
 
         let currentModalItem = null;
         let currentImageIndex = 0;
 
-        const normalizeText = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+
+        // --- INICIO: FUNCIÓN DE DESCARGA PDF MEJORADA ---
         
-        // --- INICIO: FUNCIÓN DE DESCARGA PDF PROPORCIONADA Y ADAPTADA ---
-        function downloadPDF() {
-            if (!currentModalItem) return; // Salir si no hay datos
+        /**
+         * Convierte una URL de imagen a formato Base64.
+         * Usa un proxy para evitar problemas de CORS si las imágenes no están en el mismo dominio.
+         */
+        const getBase64Image = (url) => {
+             // Un proxy simple para evitar problemas de CORS. ¡Puedes cambiarlo por uno propio!
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            return new Promise((resolve, reject) => {
+                if (!url) resolve(null);
+                fetch(proxyUrl + url)
+                    .then(response => {
+                        if (!response.ok) throw new Error(`Network response was not ok for ${url}`);
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    })
+                    .catch(error => {
+                        console.error(`Failed to fetch image ${url}:`, error);
+                        resolve(null); // Resuelve con null para no romper la promesa completa
+                    });
+            });
+        };
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+
+        async function downloadPDF() {
+            if (!currentModalItem) return;
+
+            const originalButtonContent = downloadPdfBtn.innerHTML;
+            downloadPdfBtn.disabled = true;
+            downloadPdfBtn.innerHTML = `<svg fill="currentColor" style="animation: spin 1s linear infinite;" viewBox="0 0 20 20"><path d="M10 3a7 7 0 100 14 7 7 0 000-14zM2 10a8 8 0 1116 0 8 8 0 01-16 0z" fill-opacity="0.25"></path><path d="M10 2a8 8 0 018 8h-2a6 6 0 00-6-6V2z"></path></svg>`;
             
-            const companyData = currentModalItem;
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 14;
-            
-            // Paleta de Colores
-            const primaryColor = '#2c3e50';
-            const secondaryColor = '#34495e';
-            const textColor = '#0f0f0f';
-            const headerColor = '#1a252f';
-            
-            // Función para el Encabezado y Pie de Página
-            const addHeaderFooter = () => {
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    // Encabezado
-                    doc.setFillColor(headerColor);
-                    doc.rect(0, 0, pageWidth, 25, 'F');
-                    doc.setFontSize(10);
-                    doc.setTextColor('#FFFFFF');
-                    doc.setFont('helvetica', 'bold');
-                    doc.text("FICHA DE VALORACIÓN COMERCIAL", pageWidth / 2, 15, { align: 'center' });
-                    // Pie de página
-                    doc.setFontSize(8);
-                    doc.setTextColor(secondaryColor);
-                    const footerText = `Página ${i} de ${pageCount}`;
-                    doc.text(footerText, pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
-                    doc.line(margin, doc.internal.pageSize.getHeight() - 15, pageWidth - margin, doc.internal.pageSize.getHeight() - 15);
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const companyData = currentModalItem;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 14;
+
+                const primaryColor = '#2c3e50';
+                const textColor = '#0f0f0f';
+                const headerColor = '#1a252f';
+                
+                // 1. Obtener logo en Base64 ANTES de dibujar nada
+                const logoBase64 = await getBase64Image(companyData.logo);
+
+                const addHeaderFooter = () => {
+                    const pageCount = doc.internal.getNumberOfPages();
+                    for (let i = 1; i <= pageCount; i++) {
+                        doc.setPage(i);
+                        // Encabezado
+                        doc.setFillColor(headerColor);
+                        doc.rect(0, 0, pageWidth, 25, 'F');
+                        
+                        if (logoBase64) {
+                            const logoSize = 18;
+                            const logoX = margin;
+                            const logoY = (25 - logoSize) / 2;
+                            const borderRadius = 6; 
+                            
+                            doc.save();
+                            doc.beginPath();
+                            doc.roundedRect(logoX, logoY, logoSize, logoSize, borderRadius, borderRadius);
+                            doc.clip();
+                            doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+                            doc.restore();
+                        }
+
+                        doc.setFontSize(10);
+                        doc.setTextColor('#FFFFFF');
+                        doc.setFont('helvetica', 'bold');
+                        const title = `Ficha de la Empresa "${companyData.nombreEmprendimiento}"`;
+                        doc.text(title, pageWidth / 2, 15, { align: 'center' });
+
+                        // Pie de página
+                        doc.setFontSize(8);
+                        doc.setTextColor(primaryColor);
+                        doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                        doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+                    }
+                };
+
+                let startY = 35;
+                doc.setFontSize(11);
+                doc.setTextColor(textColor);
+                doc.text(`Fecha de Ficha: ${new Date().toLocaleDateString()}`, pageWidth - margin, startY, { align: 'right' });
+                startY += 10;
+                
+                // SECCIÓN 1: INFORMACIÓN
+                doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
+                doc.text("1. Información de la Empresa", margin, startY);
+                startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                
+                const companyInfo = [
+                    ['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria],
+                    ['Ubicación:', companyData.municipio, 'Representante:', companyData.nombreRepresentante],
+                    ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido],
+                    ['Email:', companyData.email, 'Celular:', companyData.telefono],
+                ];
+                doc.autoTable({
+                    startY: startY, body: companyInfo, theme: 'plain',
+                    styles: { fontSize: 10, textColor: textColor, cellPadding: { top: 1.5, right: 2, bottom: 1.5, left: 0 } },
+                    columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
+                });
+                startY = doc.previousAutoTable.finalY + 15;
+
+                // SECCIÓN 2: DESCRIPCIÓN
+                doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
+                doc.text("2. Descripción", margin, startY);
+                startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+                const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
+                doc.text(descriptionLines, margin, startY);
+                startY += (descriptionLines.length * 5) + 10;
+
+                // SECCIÓN 3: PRODUCTOS
+                if(companyData.productos && companyData.productos.length > 0) {
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
+                    doc.text("3. Productos / Servicios", margin, startY);
+                    startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                    const productBody = companyData.productos.map((p, i) => [i + 1, p]);
+                    doc.autoTable({
+                        startY: startY, head: [['#', 'Nombre del Producto/Servicio']], body: productBody, theme: 'grid',
+                        headStyles: { fillColor: primaryColor, textColor: '#FFFFFF' }
+                    });
+                    startY = doc.previousAutoTable.finalY + 15;
                 }
-            };
-            
-            let startY = 35;
-            doc.setFontSize(11);
-            doc.setTextColor(textColor);
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Fecha de evaluación: ${new Date().toLocaleDateString()}`, pageWidth - margin, startY, { align: 'right' });
-            startY += 10;
-            
-            doc.setFontSize(16);
-            doc.setTextColor(primaryColor);
-            doc.setFont('helvetica', 'bold');
-            doc.text("1. Información de la empresa", margin, startY);
-            startY += 4;
-            doc.setDrawColor(primaryColor);
-            doc.line(margin, startY, pageWidth - margin, startY);
-            startY += 8;
-            
-            const companyInfo = [
-                ['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria],
-                ['Ubicación:', companyData.municipio, 'Responsable:', companyData.nombreRepresentante],
-                ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido],
-                ['Email:', companyData.email, 'Celular:', companyData.telefono],
-                ['Productos/Servicios:', companyData.productos.join(', ')]
-            ];
 
-            doc.autoTable({
-                startY: startY,
-                body: companyInfo,
-                theme: 'plain',
-                styles: { fontSize: 10, textColor: textColor, cellPadding: { top: 1.5, right: 2, bottom: 1.5, left: 0 } },
-                columnStyles: {
-                    0: { fontStyle: 'bold', cellWidth: 45 }, 1: { cellWidth: 'auto' },
-                    2: { fontStyle: 'bold', cellWidth: 40 }, 3: { cellWidth: 'auto' }
-                },
-                didParseCell: function (data) {
-                    // Si la celda es la de Productos/Servicios, ocupa toda la fila
-                    if (data.row.index === 4 && data.column.index === 0) {
-                        data.cell.colSpan = 4;
+                // SECCIÓN 4: GALERÍA DE IMÁGENES
+                const imageUrls = (companyData.imagenes || []).filter(Boolean);
+                if (imageUrls.length > 0) {
+                    const base64Images = (await Promise.all(imageUrls.map(getBase64Image))).filter(Boolean);
+
+                    if(base64Images.length > 0) {
+                        doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
+                        doc.text("4. Galería de Imágenes", margin, startY);
+                        startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 10;
+
+                        const imagesPerRow = 2;
+                        const imgPadding = 5;
+                        const availableWidth = pageWidth - (margin * 2) - (imgPadding * (imagesPerRow - 1));
+                        const imgWidth = availableWidth / imagesPerRow;
+                        const imgHeight = imgWidth * (9 / 16); // Aspect ratio 16:9
+
+                        let currentX = margin;
+                        base64Images.forEach((imgBase64, index) => {
+                            if (startY + imgHeight > pageHeight - margin - 15) {
+                                addHeaderFooter();
+                                doc.addPage();
+                                startY = 30; 
+                            }
+                            
+                            doc.addImage(imgBase64, 'JPEG', currentX, startY, imgWidth, imgHeight);
+
+                            if ((index + 1) % imagesPerRow === 0) {
+                                currentX = margin;
+                                startY += imgHeight + imgPadding;
+                            } else {
+                                currentX += imgWidth + imgPadding;
+                            }
+                        });
                     }
                 }
-            });
 
-            // Se omite la sección "2. Resultados de la evaluación" ya que no hay datos para `resultsForExport`
-            
-            addHeaderFooter();
-            doc.save(`Ficha_Valoracion_${companyData.nombreEmprendimiento.replace(/\s/g, '_')}.pdf`);
+                addHeaderFooter();
+                doc.save(`Ficha_${companyData.nombreEmprendimiento.replace(/\s/g, '_')}.pdf`);
+
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                alert("Hubo un error al generar el PDF. Revisa la consola para más detalles.");
+            } finally {
+                downloadPdfBtn.disabled = false;
+                downloadPdfBtn.innerHTML = originalButtonContent;
+            }
         }
         // --- FIN: FUNCIÓN DE DESCARGA PDF ---
 
@@ -565,103 +476,75 @@
         const parseCSV = (csvText) => {
             const lines = csvText.trim().split('\n');
             const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
-
             return lines.map(line => {
-                const values = [];
-                let currentVal = '';
-                let inQuotes = false;
+                const values = [], obj = {}; let currentVal = '', inQuotes = false;
                 for (let char of line) {
                     if (char === '"') inQuotes = !inQuotes;
-                    else if (char === ',' && !inQuotes) {
-                        values.push(currentVal.trim().replace(/^"|"$/g, ''));
-                        currentVal = '';
-                    } else currentVal += char;
+                    else if (char === ',' && !inQuotes) { values.push(currentVal.trim().replace(/^"|"$/g, '')); currentVal = ''; } 
+                    else currentVal += char;
                 }
                 values.push(currentVal.trim().replace(/^"|"$/g, ''));
-                const obj = {};
-                headers.forEach((header, index) => {
-                    if (header) obj[header] = values[index] || '';
-                });
+                headers.forEach((header, index) => { if (header) obj[header] = values[index] || ''; });
                 return obj;
             });
         };
 
         const renderCards = (items) => {
             grid.innerHTML = '';
-            if (items.length === 0) {
-                grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos con estos criterios.</p>`;
-                return;
-            }
-            let shuffledItems = [...items].sort(() => 0.5 - Math.random());
-            shuffledItems.forEach((item) => {
+            if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos.</p>`; return; }
+            items.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'company-card';
                 card.innerHTML = `
-                    <img src="${item.imagenes[0] || 'https://via.placeholder.com/300x180'}" alt="Banner de ${item.nombreEmprendimiento}" class="card-banner">
+                    <img src="${item.imagenes?.[0] || 'https://via.placeholder.com/300x180'}" alt="Banner" class="card-banner">
                     <div class="card-content">
                         <div class="card-header">
-                            <img src="${item.logo || 'https://via.placeholder.com/50'}" alt="Logo de ${item.nombreEmprendimiento}" class="company-logo">
+                            <img src="${item.logo || 'https://via.placeholder.com/50'}" alt="Logo" class="company-logo">
                             <h2 class="company-name">${item.nombreEmprendimiento}</h2>
                         </div>
-                        <div class="card-product-badges">
-                            ${item.productos.slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}
-                        </div>
+                        <div class="card-product-badges">${item.productos.slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
                         <span class="company-category">${item.categoria}</span>
-                    </div>
-                `;
+                    </div>`;
                 card.addEventListener('click', () => openModal(item));
                 grid.appendChild(card);
             });
         };
         
         const populateFilters = () => {
-            const mainSectors = ["Sector Primario", "Sector Secundario", "Sector Terciario", "Sector Cuaternario"];
-            mainSectors.forEach(sector => sectorFilter.innerHTML += `<option value="${sector}">${sector}</option>`);
-            
+            const sectors = [...new Set(emprendimientos.map(item => item.sectorPrimario))].filter(Boolean);
+            sectors.sort().forEach(s => sectorFilter.innerHTML += `<option value="${s}">${s}</option>`);
             const locations = [...new Set(emprendimientos.map(item => item.municipio))].filter(Boolean);
-            locations.sort().forEach(location => locationFilter.innerHTML += `<option value="${location}">${location}</option>`);
+            locations.sort().forEach(l => locationFilter.innerHTML += `<option value="${l}">${l}</option>`);
         };
         
         const handleSectorChange = () => {
             const selectedSector = sectorFilter.value;
-            categoryFilter.innerHTML = ''; 
-            if (selectedSector === 'todos') {
-                categoryFilter.innerHTML = '<option value="todos">Seleccione un sector</option>';
-                categoryFilter.disabled = true;
-            } else {
+            categoryFilter.innerHTML = '<option value="todos">Seleccione un sector</option>';
+            if (selectedSector === 'todos') { categoryFilter.disabled = true; } 
+            else {
                 categoryFilter.disabled = false;
                 categoryFilter.innerHTML = '<option value="todos">Todas las Categorías</option>';
-                const relevantEmprendimientos = emprendimientos.filter(item => item.sectorPrimario === selectedSector);
-                const categories = [...new Set(relevantEmprendimientos.map(item => item.categoria))].filter(Boolean);
-                categories.sort().forEach(category => categoryFilter.innerHTML += `<option value="${category}">${category}</option>`);
+                const categories = [...new Set(emprendimientos.filter(i => i.sectorPrimario === selectedSector).map(i => i.categoria))].filter(Boolean);
+                categories.sort().forEach(c => categoryFilter.innerHTML += `<option value="${c}">${c}</option>`);
             }
             applyFilters();
         };
 
         const applyFilters = () => {
-            const searchTerm = normalizeText(searchInput.value);
-            const selectedSector = sectorFilter.value;
-            const selectedCategory = categoryFilter.value;
-            const selectedLocation = locationFilter.value;
-
-            const filteredItems = emprendimientos.filter(item => {
-                const searchableContent = [
-                    item.nombreEmprendimiento, ...item.productos, item.descripcion, item.categoria, item.sectorPrimario,
-                    item.municipio, item.nombreRepresentante, item.direccion, item.email, item.telefono
-                ].join(' ').toLowerCase();
-                const matchesSearch = searchTerm === '' || normalizeText(searchableContent).includes(searchTerm);
-                const matchesSector = selectedSector === 'todos' || item.sectorPrimario === selectedSector;
-                const matchesCategory = selectedCategory === 'todos' || item.categoria === selectedCategory;
-                const matchesLocation = selectedLocation === 'todos' || item.municipio === selectedLocation;
-                return matchesSearch && matchesSector && matchesCategory && matchesLocation;
+            const searchTerm = normalizeText(searchInput.value), selectedSector = sectorFilter.value;
+            const selectedCategory = categoryFilter.value, selectedLocation = locationFilter.value;
+            const filtered = emprendimientos.filter(item => {
+                const searchContent = [item.nombreEmprendimiento, ...item.productos, item.descripcion, item.categoria].join(' ');
+                return (searchTerm === '' || normalizeText(searchContent).includes(searchTerm)) &&
+                       (selectedSector === 'todos' || item.sectorPrimario === selectedSector) &&
+                       (selectedCategory === 'todos' || item.categoria === selectedCategory) &&
+                       (selectedLocation === 'todos' || item.municipio === selectedLocation);
             });
-            renderCards(filteredItems);
+            renderCards(filtered);
         };
         
         const openModal = (item) => {
-            currentModalItem = item;
-            currentImageIndex = 0;
-            
+            currentModalItem = item; currentImageIndex = 0;
             document.getElementById('modal-logo').src = item.logo;
             document.getElementById('modal-name').textContent = item.nombreEmprendimiento;
             document.getElementById('modal-description').textContent = item.descripcion;
@@ -670,17 +553,13 @@
             document.getElementById('modal-email').textContent = item.email;
             document.getElementById('modal-address').textContent = item.direccion;
             document.getElementById('modal-constituted').textContent = item.constituido;
-            
-            const phoneContainer = document.getElementById('modal-phone-container');
-            const cleanPhone = item.telefono.replace(/\D/g, '');
-            phoneContainer.innerHTML = `<strong>Teléfono de Contacto:</strong><p>${item.telefono}</p>${cleanPhone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="whatsapp-link" title="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
-
+            const phone = item.telefono.replace(/\D/g, '');
+            document.getElementById('modal-phone-container').innerHTML = `<strong>Teléfono:</strong><p>${item.telefono}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
             document.getElementById('modal-products').innerHTML = item.productos.map(p => `<span class="product-badge">${p}</span>`).join('');
-            const socialsContainer = document.getElementById('modal-socials');
-            socialsContainer.innerHTML = '';
-            if (item.instagram) socialsContainer.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
-            if (item.facebook) socialsContainer.innerHTML += `<a href="${item.facebook}" target="_blank" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg></a>`;
-
+            const socials = document.getElementById('modal-socials');
+            socials.innerHTML = '';
+            if (item.instagram) socials.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
+            if (item.facebook) socials.innerHTML += `<a href="${item.facebook}" target="_blank" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg></a>`;
             updateCarouselImage();
             modal.classList.add('is-active');
         };
@@ -688,104 +567,48 @@
         const updateCarouselImage = () => {
             if (currentModalItem) document.getElementById('modal-image').src = currentModalItem.imagenes[currentImageIndex];
         };
-
-        const closeModal = () => {
-            modal.classList.remove('is-active');
-            currentModalItem = null;
-        };
+        const closeModal = () => modal.classList.remove('is-active');
 
         async function initializeApp() {
             try {
                 const response = await fetch(googleSheetURL);
-                if (!response.ok) throw new Error('Network response was not ok ' + response.statusText);
+                if (!response.ok) throw new Error('Network response was not ok');
                 const csvText = await response.text();
-                const parsedData = parseCSV(csvText);
-                emprendimientos = parsedData.map(item => {
-                    item.productos = item.productos ? item.productos.split(';').map(p => p.trim()) : [];
-                    item.imagenes = item.imagenes ? item.imagenes.split(';').map(url => url.trim()) : [];
-                    item.instagram = item.instagram === 'NULL' ? null : item.instagram;
-                    item.facebook = item.facebook === 'NULL' ? null : item.facebook;
-                    return item;
-                });
-                populateFilters();
-                renderCards(emprendimientos);
+                emprendimientos = parseCSV(csvText).map(item => ({
+                    ...item,
+                    productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
+                    imagenes: item.imagenes ? item.imagenes.split(';').map(url => url.trim()) : [],
+                }));
+                populateFilters(); renderCards(emprendimientos.sort(() => .5 - Math.random()));
                 searchInput.addEventListener('input', applyFilters);
                 sectorFilter.addEventListener('change', handleSectorChange);
                 categoryFilter.addEventListener('change', applyFilters);
                 locationFilter.addEventListener('change', applyFilters);
             } catch (error) {
-                grid.innerHTML = `<p class="loading-message">Error al cargar los datos. Verifica la URL y su configuración.</p>`;
-                console.error('Error fetching or parsing sheet data:', error);
+                grid.innerHTML = `<p class="loading-message">Error al cargar los datos.</p>`;
+                console.error('Error initializing app:', error);
             }
         }
 
         initializeApp();
-        
         modalCloseBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
-        prevBtn.addEventListener('click', () => {
-            if (currentModalItem) {
-                currentImageIndex = (currentImageIndex - 1 + currentModalItem.imagenes.length) % currentModalItem.imagenes.length;
-                updateCarouselImage();
-            }
-        });
-        nextBtn.addEventListener('click', () => {
-            if (currentModalItem) {
-                currentImageIndex = (currentImageIndex + 1) % currentModalItem.imagenes.length;
-                updateCarouselImage();
-            }
-        });
-        
-        // --- INICIO: NUEVOS EVENT LISTENERS ---
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        prevBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex - 1 + currentModalItem.imagenes.length) % currentModalItem.imagenes.length; updateCarouselImage(); } });
+        nextBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex + 1) % currentModalItem.imagenes.length; updateCarouselImage(); } });
         downloadPdfBtn.addEventListener('click', downloadPDF);
-
-        const viewButtons = [viewCardBtn, viewMosaicBtn, viewListBtn];
-        viewButtons.forEach(button => {
+        [viewCardBtn, viewMosaicBtn, viewListBtn].forEach(button => {
             button.addEventListener('click', () => {
-                viewButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
-                
                 grid.classList.remove('view-mosaic', 'view-list');
                 if (button === viewMosaicBtn) grid.classList.add('view-mosaic');
                 if (button === viewListBtn) grid.classList.add('view-list');
             });
         });
-        // --- FIN: NUEVOS EVENT LISTENERS ---
     });
     
     // --- MÓDULO DE THREE.JS ---
-    (() => {
-        const canvas = document.getElementById('three-canvas'); if (!canvas) return;
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        const particlesGeometry = new THREE.BufferGeometry;
-        const count = 5000;
-        const positions = new Float32Array(count * 3);
-        for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 10; }
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, sizeAttenuation: true, color: new THREE.Color('#38bdf8') });
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particles);
-        camera.position.z = 5;
-        const clock = new THREE.Clock();
-        const animate = () => {
-            const elapsedTime = clock.getElapsedTime();
-            particles.rotation.y = elapsedTime * 0.05;
-            particles.rotation.x = elapsedTime * 0.05;
-            renderer.render(scene, camera);
-            window.requestAnimationFrame(animate);
-        };
-        animate();
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        });
-    })();
+    (() => { const canvas = document.getElementById('three-canvas'); if (!canvas) return; const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); const particlesGeometry = new THREE.BufferGeometry; const count = 5000; const positions = new Float32Array(count * 3); for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 10; } particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, sizeAttenuation: true, color: new THREE.Color('#38bdf8') }); const particles = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particles); camera.position.z = 5; const clock = new THREE.Clock(); const animate = () => { const elapsedTime = clock.getElapsedTime(); particles.rotation.y = elapsedTime * 0.05; particles.rotation.x = elapsedTime * 0.05; renderer.render(scene, camera); window.requestAnimationFrame(animate); }; animate(); window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); }); })();
     </script>
 </body>
 </html>
