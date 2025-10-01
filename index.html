@@ -244,53 +244,7 @@
         // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF (ROBUSTA Y CORREGIDA) ---
 
         /**
-         * NUEVA FUNCIÓN ROBUSTA: Toma un elemento <img> del DOM, lo dibuja en un canvas
-         * con bordes redondeados y devuelve la imagen en Base64.
-         * @param {HTMLImageElement} imgElement - El elemento de imagen ya cargado en la página.
-         * @param {number} radius - El radio de los bordes.
-         * @returns {Promise<string|null>} Base64 de la imagen recortada o null si falla.
-         */
-        function getBase64FromImageElement(imgElement, radius) {
-            return new Promise((resolve) => {
-                try {
-                    if (!imgElement || !imgElement.complete || imgElement.naturalHeight === 0) {
-                        // Si la imagen no está cargada o está rota, no podemos procesarla.
-                        resolve(null);
-                        return;
-                    }
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    const dpr = window.devicePixelRatio || 1;
-                    canvas.width = imgElement.naturalWidth * dpr;
-                    canvas.height = imgElement.naturalHeight * dpr;
-                    ctx.scale(dpr, dpr);
-
-                    ctx.beginPath();
-                    ctx.moveTo(radius, 0);
-                    ctx.lineTo(imgElement.naturalWidth - radius, 0);
-                    ctx.quadraticCurveTo(imgElement.naturalWidth, 0, imgElement.naturalWidth, radius);
-                    ctx.lineTo(imgElement.naturalWidth, imgElement.naturalHeight - radius);
-                    ctx.quadraticCurveTo(imgElement.naturalWidth, imgElement.naturalHeight, imgElement.naturalWidth - radius, imgElement.naturalHeight);
-                    ctx.lineTo(radius, imgElement.naturalHeight);
-                    ctx.quadraticCurveTo(0, imgElement.naturalHeight, 0, imgElement.naturalHeight - radius);
-                    ctx.lineTo(0, radius);
-                    ctx.quadraticCurveTo(0, 0, radius, 0);
-                    ctx.closePath();
-                    ctx.clip();
-                    
-                    ctx.drawImage(imgElement, 0, 0, imgElement.naturalWidth, imgElement.naturalHeight);
-                    
-                    resolve(canvas.toDataURL('image/jpeg', 0.9));
-                } catch (e) {
-                    console.error("Error al procesar la imagen del DOM:", e);
-                    resolve(null);
-                }
-            });
-        }
-
-        /**
-         * Para la galería, todavía necesitamos descargar. Esta función usa un proxy de respaldo.
+         * Descarga y convierte una URL a Base64, usando un sistema de proxies con respaldo.
          */
         async function getBase64FromUrl(url) {
             if (!url) return null;
@@ -298,7 +252,7 @@
             for (const proxy of proxies) {
                 try {
                     const fetchUrl = proxy + encodeURIComponent(url);
-                    const response = await fetch(fetchUrl);
+                    const response = await fetch(fetchUrl, { cache: "no-store" });
                     if (!response.ok) throw new Error('Response not OK');
                     const blob = await response.blob();
                     return new Promise((resolve, reject) => {
@@ -313,6 +267,38 @@
             }
             console.error(`Todos los proxies fallaron para la imagen: ${url}`);
             return null;
+        }
+
+        /**
+         * Toma un Base64 de imagen y lo devuelve con bordes redondeados usando un canvas.
+         */
+        function getRoundedImageBase64(base64, radius) {
+            return new Promise((resolve) => {
+                if (!base64) return resolve(null);
+                const img = new Image();
+                img.src = base64;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    ctx.beginPath();
+                    ctx.moveTo(radius, 0);
+                    ctx.lineTo(img.width - radius, 0);
+                    ctx.quadraticCurveTo(img.width, 0, img.width, radius);
+                    ctx.lineTo(img.width, img.height - radius);
+                    ctx.quadraticCurveTo(img.width, img.height, img.width - radius, img.height);
+                    ctx.lineTo(radius, img.height);
+                    ctx.quadraticCurveTo(0, img.height, 0, img.height - radius);
+                    ctx.lineTo(0, radius);
+                    ctx.quadraticCurveTo(0, 0, radius, 0);
+                    ctx.closePath();
+                    ctx.clip();
+                    ctx.drawImage(img, 0, 0);
+                    resolve(canvas.toDataURL('image/jpeg', 0.9));
+                };
+                img.onerror = () => resolve(null);
+            });
         }
 
 
@@ -331,9 +317,8 @@
                 const margin = 14;
                 const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 
-                // --- 1. OBTENER EL LOGO DIRECTAMENTE DEL DOM (MÁS FIABLE) ---
-                const logoImgElement = document.getElementById('modal-logo');
-                const logoBase64 = await getBase64FromImageElement(logoImgElement, 22); // 22px de radio
+                const logoBase64Raw = await getBase64FromUrl(companyData.logo);
+                const logoBase64Rounded = await getRoundedImageBase64(logoBase64Raw, 22);
 
                 const addHeaderFooter = () => {
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
@@ -341,14 +326,13 @@
                         doc.setFillColor(headerColor);
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
-                        if (logoBase64) {
+                        if (logoBase64Rounded) {
                             const logoSize = 18;
-                            doc.addImage(logoBase64, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize);
+                            doc.addImage(logoBase64Rounded, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize);
                         }
 
                         doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold');
-                        // --- TÍTULO CORREGIDO ---
-                        doc.text(`FICHA DE EMPRESA "${companyData.nombreEmprendimiento.toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
+                        doc.text(`FICHA DE EMPRESA "${(companyData.nombreEmprendimiento || '').toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
                         
                         doc.setFontSize(8); doc.setTextColor(primaryColor);
                         doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
@@ -356,30 +340,58 @@
                     }
                 };
 
-                let startY = 35; //... resto de la lógica del PDF
+                let startY = 35;
+                let sectionCounter = 1;
+                
                 const addSectionTitle = (title, y) => {
                     if (y > pageHeight - 40) { doc.addPage(); y = 30; }
                     doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
-                    doc.text(title, margin, y); y += 4;
+                    doc.text(`${sectionCounter}. ${title}`, margin, y); y += 4;
                     doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y);
+                    sectionCounter++;
                     return y + 8;
                 };
 
-                startY = addSectionTitle("1. Información de la Empresa", startY);
+                startY = addSectionTitle("Información de la Empresa", startY);
                 doc.autoTable({
                     startY, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido], ['Email:', companyData.email], ['Celular:', companyData.telefono]], theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold' } }
                 });
                 startY = doc.previousAutoTable.finalY + 15;
 
-                startY = addSectionTitle("2. Descripción", startY);
-                doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-                const descriptionLines = doc.splitTextToSize(companyData.descripcion || 'N/A', pageWidth - (margin * 2));
-                doc.text(descriptionLines, margin, startY);
-                startY += (descriptionLines.length * 5) + 10;
+                if (companyData.descripcion) {
+                    startY = addSectionTitle("Descripción", startY);
+                    doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+                    const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
+                    doc.text(descriptionLines, margin, startY);
+                    startY += (descriptionLines.length * 5) + 10;
+                }
                 
                 if(companyData.productos && companyData.productos.length > 0) {
-                    startY = addSectionTitle("3. Productos / Servicios", startY);
+                    startY = addSectionTitle("Productos / Servicios", startY);
                     doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } });
+                    startY = doc.previousAutoTable.finalY + 15;
+                }
+
+                // --- NUEVA SECCIÓN DE REDES SOCIALES ---
+                if (companyData.instagram || companyData.facebook) {
+                    startY = addSectionTitle("Redes Sociales", startY);
+                    const socialData = [];
+                    if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]);
+                    if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
+                    
+                    doc.autoTable({
+                        startY,
+                        head: [['Red Social', 'Enlace']],
+                        body: socialData,
+                        theme: 'grid',
+                        headStyles: { fillColor: primaryColor },
+                        didDrawCell: (data) => {
+                            if (data.section === 'body' && data.column.index === 1) {
+                                doc.setTextColor(40, 90, 190); // Color azul para el enlace
+                                doc.textWithLink(data.cell.text[0], data.cell.x + 2, data.cell.y + data.cell.height / 2, { url: data.cell.text[0] });
+                            }
+                        }
+                    });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
@@ -387,7 +399,7 @@
                 if (imageUrls.length > 0) {
                     const base64Images = (await Promise.all(imageUrls.map(getBase64FromUrl))).filter(Boolean);
                     if(base64Images.length > 0) {
-                        startY = addSectionTitle("4. Galería de Imágenes", startY);
+                        startY = addSectionTitle("Galería de Imágenes", startY);
                         const imgPerRow=2, pad=5, availW=pageWidth-(margin*2)-(pad*(imgPerRow-1)), imgW=availW/imgPerRow, imgH=imgW*(9/16);
                         let currentX = margin;
                         for(const imgBase64 of base64Images) {
@@ -480,9 +492,7 @@
         };
         const openModal = (item) => {
             currentModalItem = item; currentImageIndex = 0;
-            const logoEl = document.getElementById('modal-logo');
-            logoEl.src = item.logo || '';
-            logoEl.crossOrigin = "Anonymous"; // Importante para poder leerlo en el canvas
+            document.getElementById('modal-logo').src = item.logo || '';
             document.getElementById('modal-name').textContent = item.nombreEmprendimiento || '';
             document.getElementById('modal-description').textContent = item.descripcion || '';
             document.getElementById('modal-representative').textContent = item.nombreRepresentante || '';
@@ -501,11 +511,7 @@
             modal.classList.add('is-active');
         };
         const updateCarouselImage = () => {
-            if (currentModalItem) {
-                const imgEl = document.getElementById('modal-image');
-                imgEl.src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250';
-                imgEl.crossOrigin = "Anonymous"; // Importante para el futuro si se necesita leer
-            }
+            if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250';
         };
         const closeModal = () => modal.classList.remove('is-active');
         async function initializeApp() {
