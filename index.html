@@ -56,7 +56,7 @@
         }
         .header p { font-size: 1.1rem; color: #9ca3af; }
 
-        /* --- FILTROS CON ESTRUCTURA RESTAURADA --- */
+        /* --- ESTRUCTURA DE FILTROS RESTAURADA --- */
         .filters-container {
             padding: 1.5rem;
             background: var(--color-glass);
@@ -87,80 +87,67 @@
         
         .search-input { 
             flex-grow: 1; 
-            flex-basis: 100%; /* Ocupa toda la primera línea */
+            flex-basis: 100%;
         }
-        
         .filter-select { 
-            flex: 1 1 160px; /* Flexibilidad para ajustarse en la segunda línea */
+            flex: 1 1 160px;
         }
         
         .search-input::placeholder { color: #9ca3af; }
         .search-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); }
         .filter-select:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
 
-        .view-controls {
-            display: flex;
-            gap: 0.5rem;
-            flex-basis: 100%; /* Se alinea al final en su propia línea */
+        .view-controls { 
+            display: flex; 
+            gap: 0.5rem; 
+            flex-basis: 100%;
             justify-content: flex-end;
         }
-        .view-btn {
-            background-color: var(--color-bg-light); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--color-text); border-radius: 8px; padding: 0.5rem; cursor: pointer;
-            transition: background-color 0.3s, border-color 0.3s; display: flex; align-items: center; justify-content: center;
-        }
+        
+        .view-btn { background-color: var(--color-bg-light); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--color-text); border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; display: flex; align-items: center; justify-content: center; }
         .view-btn svg { width: 24px; height: 24px; opacity: 0.7; }
         .view-btn:hover { border-color: var(--color-primary); }
         .view-btn.active { background-color: var(--color-primary); border-color: var(--color-primary); color: var(--color-bg); }
         .view-btn.active svg { opacity: 1; }
 
-        /* --- ESTILOS DE TARJETAS --- */
         .showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
         .loading-message, .no-results { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; }
         
-        .company-card { background-color: var(--color-bg-light); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; }
+        .company-card { background-color: var(--color-bg-light); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; position: relative; }
         .company-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1); }
         .card-banner { height: 180px; width: 100%; object-fit: cover; }
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
         .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
         .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
         .company-name { font-size: 1.25rem; font-weight: 600; }
+        .company-location { display: none; }
         .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
         .card-product-badge { background-color: var(--color-bg); color: #d1d5db; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; }
         .company-category { display: inline-block; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-top: auto; align-self: flex-start; }
-        
-        .showcase-grid.view-mosaic { gap: 0.5rem; }
-        .showcase-grid.view-mosaic .card-content { display: none; }
-        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 1rem; }
-        .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; }
-        .showcase-grid.view-list .company-card:hover { transform: translateY(-5px); }
-        .showcase-grid.view-list .card-banner { width: 120px; height: 120px; flex-shrink: 0; }
-        .showcase-grid.view-list .card-content { padding: 1rem 1.5rem; flex-grow: 1; }
 
-        /* MODAL */
+        .showcase-grid.view-mosaic { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.2rem; }
+        .showcase-grid.view-mosaic .company-card { border-radius: 0; }
+        .showcase-grid.view-mosaic .company-card:hover { transform: none; box-shadow: none; z-index: 10; }
+        .showcase-grid.view-mosaic .card-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease; justify-content: center; align-items: center; text-align: center; padding: 1rem; }
+        .showcase-grid.view-mosaic .company-card:hover .card-content { opacity: 1; }
+        .showcase-grid.view-mosaic .card-header, .showcase-grid.view-mosaic .card-product-badges, .showcase-grid.view-mosaic .company-category { display: none; }
+        .showcase-grid.view-mosaic .company-name { font-size: 1rem; }
+
+        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 0.5rem; }
+        .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; min-height: auto; padding: 1rem 1.5rem; transition: background-color 0.3s; }
+        .showcase-grid.view-list .company-card:hover { transform: none; background-color: var(--color-bg); }
+        .showcase-grid.view-list .card-banner, .showcase-grid.view-list .card-product-badges { display: none; }
+        .showcase-grid.view-list .card-content { flex-direction: row; justify-content: space-between; align-items: center; padding: 0; gap: 1.5rem; }
+        .showcase-grid.view-list .card-header { margin-bottom: 0; flex-grow: 1; }
+        .showcase-grid.view-list .company-logo { width: 40px; height: 40px; }
+        .showcase-grid.view-list .company-name { font-size: 1.1rem; }
+        .showcase-grid.view-list .company-category { margin-top: 0; text-align: center; flex-shrink: 0; width: 150px; }
+        .showcase-grid.view-list .company-location { display: block; flex-shrink: 0; width: 150px; text-align: right; }
+
+        /* --- MODAL --- */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
         .modal.is-active { display: flex; }
-        .modal-content {
-            background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px;
-            width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 90vh; overflow-y: auto; overflow-x: hidden;
-        }
-        
-        /* --- BANDERA DEL CAUCA (CORREGIDA Y PERFECCIONADA) --- */
-        .modal-content { overflow: hidden; }
-        .modal-content::before {
-            content: ''; position: absolute; top: 0; left: 0;
-            width: 100px; height: 100px; z-index: 5;
-            background: linear-gradient(
-                135deg, /* Ángulo perpendicular al corte para mostrar las 3 franjas */
-                #009639 33.3%,
-                #fcd116 33.3%, 
-                #fcd116 66.6%,
-                #009639 66.6%
-            );
-            clip-path: polygon(0 0, 100% 0, 0 100%);
-        }
-
+        .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .modal-carousel { position: relative; width: 100%; height: 250px; margin-bottom: 1.5rem; }
         #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
@@ -174,22 +161,18 @@
         #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; }
         #download-pdf-btn { background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background-color 0.3s, transform 0.3s; display: flex; align-items: center; justify-content: center; }
         #download-pdf-btn:hover { background-color: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
-        #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; background-color: transparent; }
         #download-pdf-btn svg { width: 24px; height: 24px; display: block; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
         .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
         .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
         #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
-        
-        /* --- LAYOUT DE INFORMACIÓN DEL POPUP CORREGIDO --- */
-        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-        .modal-body > div { line-height: 1.5; }
-        .modal-body p { display: inline; color: var(--color-text); }
-        .modal-body strong {
-            color: var(--color-primary); font-weight: 600;
-            margin-right: 0.5rem; font-size: 0.9rem;
-        }
+
+        /* --- ESTILOS DEL POPUP RESTAURADOS A LA VERSIÓN "HERMOSA" --- */
+        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); display: inline; }
+        .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
         
         .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
         .whatsapp-link:hover { transform: scale(1.1); }
@@ -199,17 +182,22 @@
         .social-link:hover { color: var(--color-primary); }
         .social-link svg { width: 24px; height: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        @media (max-width: 768px) { .showcase-grid.view-list .card-banner { width: 100px; height: 100px; } }
-        @media (max-width: 640px) {
-            .header h1 { font-size: 2.2rem; }
-            .filters-container { flex-direction: column; align-items: stretch; }
-            .view-controls { margin-left: 0; width: 100%; justify-content: center; }
-            .modal-body { grid-template-columns: 1fr; }
-            #modal-name { font-size: 1.5rem; }
-            .modal-content { padding: 0.5rem; }
+        
+        @media (max-width: 640px) { 
+            .header h1 { font-size: 2.2rem; } 
+            .filters-container { flex-direction: column; align-items: stretch; } 
+            .view-controls { width: 100%; justify-content: center; } 
+            .modal-body { grid-template-columns: 1fr; } 
+            #modal-name { font-size: 1.5rem; } 
+            .modal-content { padding: 0.5rem; } 
             .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
-            .showcase-grid.view-list .company-card { flex-direction: column; }
+            .showcase-grid.view-list .card-content { flex-wrap: wrap; }
+            .showcase-grid.view-list .card-header { flex-basis: 100%; }
+            .showcase-grid.view-list .company-category, .showcase-grid.view-list .company-location { width: auto; flex-grow: 1; text-align: left;}
+        }
+
+        @media (max-width: 480px) {
+            .search-input, .filter-select { min-width: 0; }
         }
     </style>
 </head>
@@ -225,19 +213,17 @@
 
         <div class="filters-container">
             <input type="text" id="searchInput" class="search-input" placeholder="Buscar en toda la vitrina...">
-            <select id="sectorFilter" class="filter-select"><option value="todos">Todos los Sectores</option></select>
-            <select id="categoryFilter" class="filter-select" disabled><option value="todos">Seleccione un sector</option></select>
-            <select id="locationFilter" class="filter-select"><option value="todos">Todas las Ubicaciones</option></select>
+            <select id="sectorFilter" class="filter-select"> <option value="todos">Todos los Sectores</option> </select>
+            <select id="categoryFilter" class="filter-select" disabled> <option value="todos">Seleccione un sector</option> </select>
+            <select id="locationFilter" class="filter-select"> <option value="todos">Todas las Ubicaciones</option> </select>
             <div class="view-controls">
-                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></button>
-                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg></button>
-                <button id="view-list-btn" class="view-btn" title="Vista de Lista"><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg></button>
+                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
+                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
+                <button id="view-list-btn" class="view-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
             </div>
         </div>
 
-        <main id="showcase-grid" class="showcase-grid">
-            <p class="loading-message">Cargando emprendimientos...</p>
-        </main>
+        <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Cargando emprendimientos...</p> </main>
     </div>
 
     <div id="company-modal" class="modal">
@@ -260,7 +246,7 @@
                 <p id="modal-description"></p>
                 <div class="modal-body">
                     <div><strong>Representante Legal:</strong><p id="modal-representative"></p></div>
-                    <div id="modal-phone-container"><strong>Teléfono:</strong><p></p></div>
+                    <div id="modal-phone-container"><strong>Teléfono de Contacto:</strong></div>
                     <div><strong>Ubicación:</strong><p id="modal-location"></p></div>
                     <div><strong>Correo Electrónico:</strong><p id="modal-email"></p></div>
                     <div><strong>Dirección:</strong><p id="modal-address"></p></div>
@@ -445,20 +431,8 @@
             document.getElementById('modal-constituted').textContent = item.constituido || '';
             
             const phoneContainer = document.getElementById('modal-phone-container');
-            const phoneP = phoneContainer.querySelector('p');
             const phone = (item.telefono || '').replace(/\D/g, '');
-            phoneP.textContent = item.telefono || 'N/A';
-            const existingLink = phoneContainer.querySelector('.whatsapp-link');
-            if(existingLink) existingLink.remove();
-            if(phone){
-                const waLink = document.createElement('a');
-                waLink.href = `https://wa.me/${phone}`;
-                waLink.target = '_blank';
-                waLink.className = 'whatsapp-link';
-                waLink.title = 'WhatsApp';
-                waLink.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg>`;
-                phoneContainer.appendChild(waLink);
-            }
+            phoneContainer.innerHTML = `<strong>Teléfono:</strong><p>${item.telefono || 'N/A'}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
 
             document.getElementById('modal-products').innerHTML = (item.productos || []).map(p => `<span class="product-badge">${p}</span>`).join('');
             const socials = document.getElementById('modal-socials'); socials.innerHTML = '';
