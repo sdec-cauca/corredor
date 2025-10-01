@@ -71,7 +71,6 @@
             align-items: center; 
         }
 
-        /* --- CAMBIO 1: Ajustes para responsividad y altura --- */
         .search-input, .filter-select {
             background-color: var(--color-bg-light);
             color: var(--color-text);
@@ -81,8 +80,8 @@
             font-size: 1rem;
             font-family: 'Poppins', sans-serif;
             transition: border-color 0.3s;
-            height: 44px; /* Altura consistente para evitar saltos */
-            min-width: 0; /* CLAVE: Permite que los elementos se encojan en flexbox */
+            height: 44px;
+            min-width: 0;
         }
         
         .search-input { 
@@ -91,7 +90,6 @@
         }
         
         .filter-select { 
-            /* Flex-basis ajustado para mejor comportamiento en pantallas angostas */
             flex: 1 1 160px; 
         }
         
@@ -193,7 +191,8 @@
         .modal-content {
             overflow: visible;
         }
-
+        
+        /* --- CAMBIO 2: Posición del Ribbon ajustada --- */
         .modal-content::before {
             content: '';
             position: absolute;
@@ -210,8 +209,9 @@
             );
             transform: rotate(-45deg);
             transform-origin: 0 0;
-            top: 25px;
-            left: -35px;
+            /* Posición ajustada para que esté "más adentro" */
+            top: 28px;
+            left: -30px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             border: 1px solid rgba(0,0,0,0.1);
             z-index: 5; 
@@ -251,7 +251,7 @@
             <select id="locationFilter" class="filter-select"> <option value="todos">Todas las Ubicaciones</option> </select>
             
             <div class="view-controls">
-                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 S0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
+                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
                 <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
                 <button id="view-list-btn" class="view-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
             </div>
@@ -314,6 +314,24 @@
         let currentImageIndex = 0;
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
+
+        // --- INICIO: FUNCIÓN PARA PROCESAR URLS DE IMAGEN ---
+        const processImageUrl = (url) => {
+            if (!url) return '';
+            // Detecta si es una URL de Google Drive en varios formatos
+            if (url.includes('drive.google.') || url.includes('drive.usercontent.google.')) {
+                // Extrae el ID del archivo usando una expresión regular
+                const match = url.match(/[?&]id=([^&]+)/);
+                if (match && match[1]) {
+                    const fileId = match[1];
+                    // Devuelve la URL en el formato estándar para visualización directa
+                    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+                }
+            }
+            // Si no es una URL de Drive reconocible, la devuelve tal cual
+            return url;
+        };
+        // --- FIN: FUNCIÓN PARA PROCESAR URLS DE IMAGEN ---
 
         // --- PDF Generation (No changes here) ---
         async function getBase64FromUrl(url) {
@@ -483,7 +501,12 @@
         async function initializeApp() {
             try {
                 const response = await fetch(googleSheetURL); if (!response.ok) throw new Error('Network response was not ok'); const csvText = await response.text();
-                emprendimientos = parseCSV(csvText).map(item => ({ ...item, productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [], imagenes: item.imagenes ? item.imagenes.split(';').map(url => url.trim()) : [], }));
+                emprendimientos = parseCSV(csvText).map(item => ({
+                    ...item,
+                    productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
+                    // Se aplica la nueva función a cada URL en el array de imágenes
+                    imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
+                }));
                 populateFilters(); renderCards(emprendimientos.sort(() => .5 - Math.random()));
                 searchInput.addEventListener('input', applyFilters); sectorFilter.addEventListener('change', handleSectorChange); categoryFilter.addEventListener('change', applyFilters); locationFilter.addEventListener('change', applyFilters);
             } catch (error) { grid.innerHTML = `<p class="loading-message">Error al cargar los datos.</p>`; console.error('Error initializing app:', error); }
