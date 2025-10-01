@@ -80,6 +80,7 @@
             font-size: 1rem;
             font-family: 'Poppins', sans-serif;
             transition: border-color 0.3s;
+            width: 100%; /* Asegura que ocupe el espacio en layout de columna */
         }
         .search-input { flex-grow: 1; min-width: 200px; }
         .filter-select { flex-grow: 1; }
@@ -157,7 +158,22 @@
         .social-link svg { width: 24px; height: 24px; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 640px) { .header h1 { font-size: 2.2rem; } .filters-container { flex-direction: column; } .view-controls { margin-left: 0; width: 100%; justify-content: center; } .modal-body { grid-template-columns: 1fr; } #modal-name { font-size: 1.5rem; } .modal-content { padding: 0.5rem; } .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; } }
+        
+        /* --- ESTILOS RESPONSIVE --- */
+        @media (max-width: 640px) { 
+            .header h1 { font-size: 2.2rem; } 
+            
+            .filters-container { 
+                flex-direction: column; 
+                align-items: stretch; /* <-- CORRECCIÓN APLICADA AQUÍ */
+            } 
+
+            .view-controls { margin-left: 0; width: 100%; justify-content: center; } 
+            .modal-body { grid-template-columns: 1fr; } 
+            #modal-name { font-size: 1.5rem; } 
+            .modal-content { padding: 0.5rem; } 
+            .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; } 
+        }
     </style>
 </head>
 <body>
@@ -221,6 +237,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script>
+    // El script de JavaScript permanece sin cambios
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -241,11 +258,6 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
 
-        // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF ---
-
-        /**
-         * Descarga y convierte una URL a Base64, usando un sistema de proxies con respaldo.
-         */
         async function getBase64FromUrl(url) {
             if (!url) return null;
             const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
@@ -269,9 +281,6 @@
             return null;
         }
 
-        /**
-         * Toma un Base64 de imagen y lo devuelve con bordes redondeados usando un canvas.
-         */
         function getRoundedImageBase64(base64, radius) {
             return new Promise((resolve) => {
                 if (!base64) return resolve(null);
@@ -300,7 +309,6 @@
                 img.onerror = () => resolve(null);
             });
         }
-
 
         async function downloadPDF() {
             if (!currentModalItem) return;
@@ -372,7 +380,6 @@
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
-                // --- INICIO: SECCIÓN DE REDES SOCIALES CORREGIDA ---
                 if (companyData.instagram || companyData.facebook) {
                     startY = addSectionTitle("Redes Sociales", startY);
                     const socialData = [];
@@ -386,10 +393,9 @@
                         theme: 'grid',
                         headStyles: { fillColor: primaryColor },
                         columnStyles: {
-                            1: { textColor: [40, 90, 190] } // 1. Pinta el texto de la URL de color azul.
+                            1: { textColor: [40, 90, 190] } 
                         },
                         didDrawCell: (data) => {
-                            // 2. Añade un área de enlace invisible sobre el texto ya dibujado.
                             if (data.section === 'body' && data.column.index === 1) {
                                 doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] });
                             }
@@ -397,7 +403,6 @@
                     });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
-                // --- FIN: SECCIÓN DE REDES SOCIALES CORREGIDA ---
 
                 const imageUrls = (companyData.imagenes || []).filter(Boolean);
                 if (imageUrls.length > 0) {
@@ -428,7 +433,6 @@
             }
         }
         
-        // --- RESTO DEL SCRIPT (SIN CAMBIOS) ---
         const parseCSV = (csvText) => {
             const lines = csvText.trim().split('\n');
             const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
