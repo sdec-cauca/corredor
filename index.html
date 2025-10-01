@@ -327,8 +327,7 @@
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
             
-            // --- CAMBIO: FUNCIÓN PARA LIMPIAR TEXTO ---
-            const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ');
+            const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ').trim();
 
             try {
                 const { jsPDF } = window.jspdf; const doc = new jsPDF(); const companyData = currentModalItem;
@@ -354,28 +353,35 @@
                 };
 
                 startY = addSectionTitle("Información General", startY);
+                
+                // --- CAMBIO: APLICANDO SANITIZE Y CONTROLANDO ANCHO DE COLUMNAS ---
+                const tableBody = [
+                    ['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],
+                    ['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante],
+                    ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido],
+                    ['Email:', companyData.email], ['Celular:', companyData.telefono]
+                ].map(row => [row[0], sanitizeText(row[1])]);
+
                 doc.autoTable({
                     startY, theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 },
-                    body: [
-                        ['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],
-                        ['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante],
-                        ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido],
-                        ['Email:', companyData.email], ['Celular:', companyData.telefono]
-                    ].map(row => [row[0], sanitizeText(row[1])]), // <-- APLICANDO SANITIZE
-                    columnStyles: { 0: { fontStyle: 'bold' } }
+                    body: tableBody,
+                    columnStyles: { 
+                        0: { fontStyle: 'bold', cellWidth: 40 }, // Ancho fijo para etiquetas
+                        1: { cellWidth: 'auto' } // El valor usa el resto del espacio
+                    }
                 });
                 startY = doc.previousAutoTable.finalY + 15;
                 
                 if (companyData.descripcion) {
                     startY = addSectionTitle("Descripción", startY);
-                    const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2)); // <-- APLICANDO SANITIZE
+                    const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2));
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(descriptionLines, margin, startY);
                     startY += (descriptionLines.length * 5) + 10;
                 }
 
                 if(companyData.productos && companyData.productos.length > 0) {
                     startY = addSectionTitle("Productos / Servicios", startY);
-                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, sanitizeText(p)]), theme: 'grid', headStyles: { fillColor: primaryColor } }); // <-- APLICANDO SANITIZE
+                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, sanitizeText(p)]), theme: 'grid', headStyles: { fillColor: primaryColor } });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
