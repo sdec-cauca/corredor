@@ -168,7 +168,7 @@
         #download-pdf-btn:hover { background-color: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
         #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; background-color: transparent; }
         #download-pdf-btn svg { width: 24px; height: 24px; display: block; }
-        @keyframes spin { 100% { transform: rotate(3g); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
         .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
         .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
@@ -185,6 +185,38 @@
         .social-link svg { width: 24px; height: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
+        /* --- INICIO: CÓDIGO AÑADIDO PARA LA CINTA --- */
+        .modal-content {
+            /* Se necesita overflow visible para que la cinta no se corte por el border-radius */
+            overflow: visible;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px; /* Ancho de la cinta */
+            height: 30px; /* Alto de la cinta */
+            /* Colores de la bandera del Cauca: Amarillo, Verde, Rojo */
+            background: linear-gradient(
+                to bottom, 
+                #fcd116 33.3%,  /* Amarillo */
+                #009639 33.3%, 
+                #009639 66.6%,  /* Verde */
+                #ce1126 66.6%   /* Rojo */
+            );
+            transform: rotate(-45deg);
+            transform-origin: 0 0;
+            /* Ajuste fino de la posición para que encaje en la esquina */
+            top: 32px;
+            left: -32px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.1);
+            z-index: 5; 
+        }
+        /* --- FIN: CÓDIGO AÑADIDO PARA LA CINTA --- */
+
         /* --- ESTILOS RESPONSIVE GENERALES --- */
         @media (max-width: 640px) { 
             .header h1 { font-size: 2.2rem; } 
@@ -402,8 +434,6 @@
             items.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'company-card';
-                // --- INICIO: CAMBIO EN JAVASCRIPT ---
-                // Se añade el span para la ubicación para poder mostrarlo en la vista de lista.
                 card.innerHTML = `
                     <img src="${item.imagenes?.[0] || 'https://via.placeholder.com/300x180'}" alt="Banner" class="card-banner">
                     <div class="card-content">
@@ -415,7 +445,6 @@
                         <span class="company-category">${item.categoria}</span>
                         <span class="company-location">${item.municipio}</span>
                     </div>`;
-                // --- FIN: CAMBIO EN JAVASCRIPT ---
                 card.addEventListener('click', () => openModal(item));
                 grid.appendChild(card);
             });
