@@ -285,19 +285,43 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
 
-        // --- INICIO: FUNCIÓN DE DESCARGA PDF MEJORADA ---
-        
+        // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF (CORREGIDA Y MEJORADA) ---
+
         /**
-         * Convierte una URL de imagen a formato Base64 usando un proxy para evitar errores de CORS.
-         * Es necesario porque el canvas del PDF no puede acceder directamente a imágenes de otros dominios.
+         * Transforma una URL de Google Drive de "vista previa" a una URL de "descarga directa".
+         * @param {string} url La URL original de Google Drive.
+         * @returns {string} La URL de descarga directa o la URL original si no es de Google Drive.
+         */
+        function getDirectGoogleDriveUrl(url) {
+            if (!url || !url.includes('drive.google.com')) {
+                return url; // No es un enlace de GDrive, devolver tal cual.
+            }
+            const match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                const fileId = match[1];
+                return `https://drive.google.com/uc?export=view&id=${fileId}`;
+            }
+            return url; // Devolver original si el formato no coincide.
+        }
+
+        /**
+         * Convierte una URL de imagen a formato Base64, manejando CORS y enlaces de Google Drive.
+         * @param {string} url La URL de la imagen.
+         * @returns {Promise<string|null>} Una promesa que resuelve a la cadena Base64 o null si falla.
          */
         const getBase64Image = (url) => {
-            const proxyUrl = 'https://corsproxy.io/?'; // Un proxy confiable
             return new Promise((resolve) => {
                 if (!url) return resolve(null);
-                fetch(proxyUrl + encodeURIComponent(url))
+                
+                const directUrl = getDirectGoogleDriveUrl(url);
+                const proxyUrl = 'https://api.allorigins.win/raw?url='; // Proxy CORS confiable
+                const fetchUrl = proxyUrl + encodeURIComponent(directUrl);
+
+                console.log(`Intentando cargar imagen: ${directUrl}`);
+
+                fetch(fetchUrl)
                     .then(response => {
-                        if (!response.ok) throw new Error(`Network response was not ok for ${url}`);
+                        if (!response.ok) throw new Error(`Respuesta de red no fue OK para ${directUrl}`);
                         return response.blob();
                     })
                     .then(blob => {
@@ -307,8 +331,8 @@
                         reader.readAsDataURL(blob);
                     })
                     .catch(error => {
-                        console.error(`Fallo al cargar la imagen ${url}:`, error);
-                        resolve(null); // Resuelve null para no detener la generación del PDF.
+                        console.error(`Fallo al cargar la imagen ${directUrl}:`, error);
+                        resolve(null);
                     });
             });
         };
@@ -328,44 +352,37 @@
                 const pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 14;
 
-                const primaryColor = '#2c3e50';
-                const textColor = '#0f0f0f';
-                const headerColor = '#1a252f';
+                const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 
-                // 1. Obtener logo en Base64 ANTES de dibujar nada
                 const logoBase64 = await getBase64Image(companyData.logo);
 
                 const addHeaderFooter = () => {
                     const pageCount = doc.internal.getNumberOfPages();
                     for (let i = 1; i <= pageCount; i++) {
                         doc.setPage(i);
-                        // --- ENCABEZADO ---
                         doc.setFillColor(headerColor);
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
-                        // --- DIBUJAR LOGO REDONDEADO A LA IZQUIERDA ---
                         if (logoBase64) {
                             const logoSize = 18;
                             const logoX = margin;
                             const logoY = (25 - logoSize) / 2;
-                            const borderRadius = 8; // Un radio alto para un efecto muy redondeado
+                            const borderRadius = 9; // Mitad del tamaño para un círculo perfecto
                             
                             doc.save();
                             doc.beginPath();
                             doc.roundedRect(logoX, logoY, logoSize, logoSize, borderRadius, borderRadius);
                             doc.clip();
-                            doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+                            doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
                             doc.restore();
                         }
 
-                        // --- TÍTULO DINÁMICO ---
                         doc.setFontSize(10);
                         doc.setTextColor('#FFFFFF');
                         doc.setFont('helvetica', 'bold');
                         const title = `Ficha de la Empresa "${companyData.nombreEmprendimiento}"`;
                         doc.text(title, pageWidth / 2, 15, { align: 'center' });
 
-                        // --- PIE DE PÁGINA ---
                         doc.setFontSize(8);
                         doc.setTextColor(primaryColor);
                         doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
@@ -374,16 +391,19 @@
                 };
 
                 let startY = 35;
-                doc.setFontSize(11);
-                doc.setTextColor(textColor);
+                doc.setFontSize(11); doc.setTextColor(textColor);
                 doc.text(`Fecha de Ficha: ${new Date().toLocaleDateString()}`, pageWidth - margin, startY, { align: 'right' });
                 startY += 10;
                 
-                // SECCIÓN 1: INFORMACIÓN
-                doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
-                doc.text("1. Información de la Empresa", margin, startY);
-                startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
-                
+                const addSectionTitle = (title, y) => {
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
+                    doc.text(title, margin, y);
+                    y += 4;
+                    doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y);
+                    return y + 8;
+                };
+
+                startY = addSectionTitle("1. Información de la Empresa", startY);
                 doc.autoTable({
                     startY: startY, body: [
                         ['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria],
@@ -391,26 +411,20 @@
                         ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido],
                         ['Email:', companyData.email, 'Celular:', companyData.telefono],
                     ], theme: 'plain',
-                    styles: { fontSize: 10, textColor: textColor, cellPadding: { top: 1.5, right: 2, bottom: 1.5, left: 0 } },
+                    styles: { fontSize: 10, textColor: textColor, cellPadding: 1.5 },
                     columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
                 });
                 startY = doc.previousAutoTable.finalY + 15;
 
-                // SECCIÓN 2: DESCRIPCIÓN
-                doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
-                doc.text("2. Descripción", margin, startY);
-                startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                startY = addSectionTitle("2. Descripción", startY);
                 doc.setFontSize(10); doc.setFont('helvetica', 'normal');
                 const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
                 doc.text(descriptionLines, margin, startY);
                 startY += (descriptionLines.length * 5) + 10;
 
-                // SECCIÓN 3: PRODUCTOS
                 if(companyData.productos && companyData.productos.length > 0) {
-                    startY = startY > pageHeight - 50 ? (doc.addPage(), 30) : startY;
-                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
-                    doc.text("3. Productos / Servicios", margin, startY);
-                    startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                    if (startY > pageHeight - 60) { doc.addPage(); startY = 30; }
+                    startY = addSectionTitle("3. Productos / Servicios", startY);
                     doc.autoTable({
                         startY: startY, head: [['#', 'Nombre del Producto/Servicio']], 
                         body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid',
@@ -419,36 +433,28 @@
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
-                // SECCIÓN 4: GALERÍA DE IMÁGENES
                 const imageUrls = (companyData.imagenes || []).filter(Boolean);
                 if (imageUrls.length > 0) {
                     const base64Images = (await Promise.all(imageUrls.map(getBase64Image))).filter(Boolean);
 
                     if(base64Images.length > 0) {
-                        startY = startY > pageHeight - 80 ? (doc.addPage(), 30) : startY;
-                        doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
-                        doc.text("4. Galería de Imágenes", margin, startY);
-                        startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 10;
+                        if (startY > pageHeight - 80) { doc.addPage(); startY = 30; }
+                        startY = addSectionTitle("4. Galería de Imágenes", startY);
 
-                        const imagesPerRow = 2;
-                        const imgPadding = 5;
+                        const imagesPerRow = 2; const imgPadding = 5;
                         const availableWidth = pageWidth - (margin * 2) - (imgPadding * (imagesPerRow - 1));
-                        const imgWidth = availableWidth / imagesPerRow;
-                        const imgHeight = imgWidth * (9 / 16);
-
+                        const imgWidth = availableWidth / imagesPerRow; const imgHeight = imgWidth * (9 / 16);
                         let currentX = margin;
+
                         for(const imgBase64 of base64Images) {
                             if (startY + imgHeight > pageHeight - 20) {
-                                addHeaderFooter();
-                                doc.addPage();
-                                startY = 30;
+                                addHeaderFooter(); doc.addPage(); startY = 30;
                             }
                             doc.addImage(imgBase64, 'JPEG', currentX, startY, imgWidth, imgHeight);
                             
                             const isLastInRow = (base64Images.indexOf(imgBase64) + 1) % imagesPerRow === 0;
-                            if (isLastInRow) {
-                                currentX = margin;
-                                startY += imgHeight + imgPadding;
+                            if (isLastInRow || base64Images.indexOf(imgBase64) === base64Images.length - 1) {
+                                currentX = margin; startY += imgHeight + imgPadding;
                             } else {
                                 currentX += imgWidth + imgPadding;
                             }
@@ -467,7 +473,7 @@
                 downloadPdfBtn.innerHTML = originalButtonContent;
             }
         }
-        // --- FIN: FUNCIÓN DE DESCARGA PDF ---
+        // --- FIN: SECCIÓN DE GENERACIÓN DE PDF ---
 
 
         const parseCSV = (csvText) => {
@@ -499,7 +505,7 @@
                             <img src="${item.logo || 'https://via.placeholder.com/50'}" alt="Logo" class="company-logo">
                             <h2 class="company-name">${item.nombreEmprendimiento}</h2>
                         </div>
-                        <div class="card-product-badges">${item.productos.slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
+                        <div class="card-product-badges">${(item.productos || []).slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
                         <span class="company-category">${item.categoria}</span>
                     </div>`;
                 card.addEventListener('click', () => openModal(item));
@@ -531,7 +537,7 @@
             const searchTerm = normalizeText(searchInput.value), selectedSector = sectorFilter.value;
             const selectedCategory = categoryFilter.value, selectedLocation = locationFilter.value;
             const filtered = emprendimientos.filter(item => {
-                const searchContent = [item.nombreEmprendimiento, ...item.productos, item.descripcion, item.categoria].join(' ');
+                const searchContent = [item.nombreEmprendimiento, ...(item.productos || []), item.descripcion, item.categoria].join(' ');
                 return (searchTerm === '' || normalizeText(searchContent).includes(searchTerm)) &&
                        (selectedSector === 'todos' || item.sectorPrimario === selectedSector) &&
                        (selectedCategory === 'todos' || item.categoria === selectedCategory) &&
@@ -550,9 +556,9 @@
             document.getElementById('modal-email').textContent = item.email;
             document.getElementById('modal-address').textContent = item.direccion;
             document.getElementById('modal-constituted').textContent = item.constituido;
-            const phone = item.telefono.replace(/\D/g, '');
+            const phone = (item.telefono || '').replace(/\D/g, '');
             document.getElementById('modal-phone-container').innerHTML = `<strong>Teléfono:</strong><p>${item.telefono}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
-            document.getElementById('modal-products').innerHTML = item.productos.map(p => `<span class="product-badge">${p}</span>`).join('');
+            document.getElementById('modal-products').innerHTML = (item.productos || []).map(p => `<span class="product-badge">${p}</span>`).join('');
             const socials = document.getElementById('modal-socials');
             socials.innerHTML = '';
             if (item.instagram) socials.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
@@ -562,7 +568,7 @@
         };
 
         const updateCarouselImage = () => {
-            if (currentModalItem) document.getElementById('modal-image').src = currentModalItem.imagenes[currentImageIndex];
+            if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || '';
         };
         const closeModal = () => modal.classList.remove('is-active');
 
@@ -590,8 +596,8 @@
         initializeApp();
         modalCloseBtn.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-        prevBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex - 1 + currentModalItem.imagenes.length) % currentModalItem.imagenes.length; updateCarouselImage(); } });
-        nextBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex + 1) % currentModalItem.imagenes.length; updateCarouselImage(); } });
+        prevBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex - 1 + (currentModalItem.imagenes || []).length) % (currentModalItem.imagenes || []).length; updateCarouselImage(); } });
+        nextBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex + 1) % (currentModalItem.imagenes || []).length; updateCarouselImage(); } });
         downloadPdfBtn.addEventListener('click', downloadPDF);
         document.querySelectorAll('.view-btn').forEach(button => {
             button.addEventListener('click', () => {
