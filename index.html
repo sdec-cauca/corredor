@@ -243,6 +243,9 @@
 
         // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF ---
 
+        /**
+         * Descarga y convierte una URL a Base64, usando un sistema de proxies con respaldo.
+         */
         async function getBase64FromUrl(url) {
             if (!url) return null;
             const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
@@ -256,6 +259,7 @@
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
                         reader.onerror = reject;
+                        reader.readAsDataURL(blob);
                     });
                 } catch (error) {
                     console.warn(`Proxy ${proxy.split('/')[2]} falló para ${url}, intentando siguiente.`);
@@ -265,7 +269,10 @@
             return null;
         }
 
-        function getCircularImageBase64(base64) {
+        /**
+         * Toma un Base64 de imagen y lo devuelve con bordes redondeados usando un canvas.
+         */
+        function getRoundedImageBase64(base64, radius) {
             return new Promise((resolve) => {
                 if (!base64) return resolve(null);
                 const img = new Image();
@@ -273,19 +280,27 @@
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    const size = Math.min(img.naturalWidth, img.naturalHeight);
-                    canvas.width = size;
-                    canvas.height = size;
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
                     ctx.beginPath();
-                    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2, true);
+                    ctx.moveTo(radius, 0);
+                    ctx.lineTo(img.width - radius, 0);
+                    ctx.quadraticCurveTo(img.width, 0, img.width, radius);
+                    ctx.lineTo(img.width, img.height - radius);
+                    ctx.quadraticCurveTo(img.width, img.height, img.width - radius, img.height);
+                    ctx.lineTo(radius, img.height);
+                    ctx.quadraticCurveTo(0, img.height, 0, img.height - radius);
+                    ctx.lineTo(0, radius);
+                    ctx.quadraticCurveTo(0, 0, radius, 0);
                     ctx.closePath();
                     ctx.clip();
-                    ctx.drawImage(img, 0, 0, size, size);
+                    ctx.drawImage(img, 0, 0);
                     resolve(canvas.toDataURL('image/jpeg', 0.9));
                 };
                 img.onerror = () => resolve(null);
             });
         }
+
 
         async function downloadPDF() {
             if (!currentModalItem) return;
@@ -303,7 +318,7 @@
                 const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 
                 const logoBase64Raw = await getBase64FromUrl(companyData.logo);
-                const logoBase64Circular = await getCircularImageBase64(logoBase64Raw);
+                const logoBase64Rounded = await getRoundedImageBase64(logoBase64Raw, 22);
 
                 const addHeaderFooter = () => {
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
@@ -311,9 +326,9 @@
                         doc.setFillColor(headerColor);
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
-                        if (logoBase64Circular) {
+                        if (logoBase64Rounded) {
                             const logoSize = 18;
-                            doc.addImage(logoBase64Circular, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize);
+                            doc.addImage(logoBase64Rounded, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize);
                         }
 
                         doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold');
@@ -357,6 +372,7 @@
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
+                // --- INICIO: SECCIÓN DE REDES SOCIALES CORREGIDA ---
                 if (companyData.instagram || companyData.facebook) {
                     startY = addSectionTitle("Redes Sociales", startY);
                     const socialData = [];
@@ -369,22 +385,19 @@
                         body: socialData,
                         theme: 'grid',
                         headStyles: { fillColor: primaryColor },
-                        willDrawCell: (data) => {
-                            // Previene que autotable dibuje la celda del enlace
-                            if (data.section === 'body' && data.column.index === 1) {
-                                return false;
-                            }
+                        columnStyles: {
+                            1: { textColor: [40, 90, 190] } // 1. Pinta el texto de la URL de color azul.
                         },
                         didDrawCell: (data) => {
-                            // Dibuja el enlace manualmente solo una vez
+                            // 2. Añade un área de enlace invisible sobre el texto ya dibujado.
                             if (data.section === 'body' && data.column.index === 1) {
-                                doc.setTextColor(40, 90, 190); // Color azul de enlace
-                                doc.textWithLink(data.cell.raw, data.cell.x + 2, data.cell.y + data.cell.height / 1.5, { url: data.cell.raw });
+                                doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] });
                             }
                         }
                     });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
+                // --- FIN: SECCIÓN DE REDES SOCIALES CORREGIDA ---
 
                 const imageUrls = (companyData.imagenes || []).filter(Boolean);
                 if (imageUrls.length > 0) {
@@ -415,6 +428,7 @@
             }
         }
         
+        // --- RESTO DEL SCRIPT (SIN CAMBIOS) ---
         const parseCSV = (csvText) => {
             const lines = csvText.trim().split('\n');
             const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
