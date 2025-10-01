@@ -321,14 +321,12 @@
             });
         }
 
-        // --- CAMBIO: FUNCIÓN DE PDF RESTAURADA Y MEJORADA ---
         async function downloadPDF() {
             if (!currentModalItem) return;
             const originalButtonContent = downloadPdfBtn.innerHTML;
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
             
-            // Función para limpiar texto de saltos de línea
             const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ');
 
             try {
@@ -362,7 +360,7 @@
                         ['Ubicación:', sanitizeText(companyData.municipio)], ['Representante:', sanitizeText(companyData.nombreRepresentante)],
                         ['Dirección:', sanitizeText(companyData.direccion)], ['Constituido:', sanitizeText(companyData.constituido)],
                         ['Email:', sanitizeText(companyData.email)], ['Celular:', sanitizeText(companyData.telefono)]
-                    ].map(row => [row[0], sanitizeText(row[1])]), // Sanitiza todos los valores
+                    ].map(row => [row[0], sanitizeText(row[1])]),
                     columnStyles: { 0: { fontStyle: 'bold' } }
                 });
                 startY = doc.previousAutoTable.finalY + 15;
@@ -431,10 +429,15 @@
             });
         };
 
+        // --- CAMBIO: LÓGICA DE ALEATORIZACIÓN MOVIDA AQUÍ ---
         const renderCards = (items) => {
             grid.innerHTML = '';
             if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos.</p>`; return; }
-            items.forEach((item) => {
+            
+            // Se baraja el array de items justo antes de renderizar
+            const shuffledItems = [...items].sort(() => .5 - Math.random());
+
+            shuffledItems.forEach((item) => {
                 const card = document.createElement('div');
                 card.className = 'company-card';
                 card.innerHTML = `
@@ -480,7 +483,7 @@
                        (selectedCategory === 'todos' || item.categoria === selectedCategory) &&
                        (selectedLocation === 'todos' || item.municipio === selectedLocation);
             });
-            renderCards(filtered);
+            renderCards(filtered); // Renderizará los resultados filtrados de forma aleatoria
         };
         
         const openModal = (item) => {
@@ -529,7 +532,8 @@
                     imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
                     logo: processImageUrl(item.logo)
                 }));
-                populateFilters(); renderCards(emprendimientos);
+                populateFilters(); 
+                renderCards(emprendimientos); // Carga inicial aleatoria
                 searchInput.addEventListener('input', applyFilters);
                 sectorFilter.addEventListener('change', handleSectorChange);
                 categoryFilter.addEventListener('change', applyFilters);
