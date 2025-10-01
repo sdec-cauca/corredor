@@ -278,12 +278,8 @@
         const modalCloseBtn = document.getElementById('modal-close-btn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
-        const viewCardBtn = document.getElementById('view-card-btn');
-        const viewMosaicBtn = document.getElementById('view-mosaic-btn');
-        const viewListBtn = document.getElementById('view-list-btn');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        const downloadPdfBtnIcon = downloadPdfBtn.innerHTML; // Guardar el icono original
-
+        
         let currentModalItem = null;
         let currentImageIndex = 0;
 
@@ -292,15 +288,14 @@
         // --- INICIO: FUNCIÓN DE DESCARGA PDF MEJORADA ---
         
         /**
-         * Convierte una URL de imagen a formato Base64.
-         * Usa un proxy para evitar problemas de CORS si las imágenes no están en el mismo dominio.
+         * Convierte una URL de imagen a formato Base64 usando un proxy para evitar errores de CORS.
+         * Es necesario porque el canvas del PDF no puede acceder directamente a imágenes de otros dominios.
          */
         const getBase64Image = (url) => {
-             // Un proxy simple para evitar problemas de CORS. ¡Puedes cambiarlo por uno propio!
-            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-            return new Promise((resolve, reject) => {
-                if (!url) resolve(null);
-                fetch(proxyUrl + url)
+            const proxyUrl = 'https://corsproxy.io/?'; // Un proxy confiable
+            return new Promise((resolve) => {
+                if (!url) return resolve(null);
+                fetch(proxyUrl + encodeURIComponent(url))
                     .then(response => {
                         if (!response.ok) throw new Error(`Network response was not ok for ${url}`);
                         return response.blob();
@@ -308,23 +303,22 @@
                     .then(blob => {
                         const reader = new FileReader();
                         reader.onloadend = () => resolve(reader.result);
-                        reader.onerror = reject;
+                        reader.onerror = () => resolve(null);
                         reader.readAsDataURL(blob);
                     })
                     .catch(error => {
-                        console.error(`Failed to fetch image ${url}:`, error);
-                        resolve(null); // Resuelve con null para no romper la promesa completa
+                        console.error(`Fallo al cargar la imagen ${url}:`, error);
+                        resolve(null); // Resuelve null para no detener la generación del PDF.
                     });
             });
         };
-
 
         async function downloadPDF() {
             if (!currentModalItem) return;
 
             const originalButtonContent = downloadPdfBtn.innerHTML;
             downloadPdfBtn.disabled = true;
-            downloadPdfBtn.innerHTML = `<svg fill="currentColor" style="animation: spin 1s linear infinite;" viewBox="0 0 20 20"><path d="M10 3a7 7 0 100 14 7 7 0 000-14zM2 10a8 8 0 1116 0 8 8 0 01-16 0z" fill-opacity="0.25"></path><path d="M10 2a8 8 0 018 8h-2a6 6 0 00-6-6V2z"></path></svg>`;
+            downloadPdfBtn.innerHTML = `Generando...`;
             
             try {
                 const { jsPDF } = window.jspdf;
@@ -345,15 +339,16 @@
                     const pageCount = doc.internal.getNumberOfPages();
                     for (let i = 1; i <= pageCount; i++) {
                         doc.setPage(i);
-                        // Encabezado
+                        // --- ENCABEZADO ---
                         doc.setFillColor(headerColor);
                         doc.rect(0, 0, pageWidth, 25, 'F');
                         
+                        // --- DIBUJAR LOGO REDONDEADO A LA IZQUIERDA ---
                         if (logoBase64) {
                             const logoSize = 18;
                             const logoX = margin;
                             const logoY = (25 - logoSize) / 2;
-                            const borderRadius = 6; 
+                            const borderRadius = 8; // Un radio alto para un efecto muy redondeado
                             
                             doc.save();
                             doc.beginPath();
@@ -363,13 +358,14 @@
                             doc.restore();
                         }
 
+                        // --- TÍTULO DINÁMICO ---
                         doc.setFontSize(10);
                         doc.setTextColor('#FFFFFF');
                         doc.setFont('helvetica', 'bold');
                         const title = `Ficha de la Empresa "${companyData.nombreEmprendimiento}"`;
                         doc.text(title, pageWidth / 2, 15, { align: 'center' });
 
-                        // Pie de página
+                        // --- PIE DE PÁGINA ---
                         doc.setFontSize(8);
                         doc.setTextColor(primaryColor);
                         doc.text(`Página ${i} de ${pageCount}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
@@ -388,14 +384,13 @@
                 doc.text("1. Información de la Empresa", margin, startY);
                 startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
                 
-                const companyInfo = [
-                    ['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria],
-                    ['Ubicación:', companyData.municipio, 'Representante:', companyData.nombreRepresentante],
-                    ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido],
-                    ['Email:', companyData.email, 'Celular:', companyData.telefono],
-                ];
                 doc.autoTable({
-                    startY: startY, body: companyInfo, theme: 'plain',
+                    startY: startY, body: [
+                        ['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria],
+                        ['Ubicación:', companyData.municipio, 'Representante:', companyData.nombreRepresentante],
+                        ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido],
+                        ['Email:', companyData.email, 'Celular:', companyData.telefono],
+                    ], theme: 'plain',
                     styles: { fontSize: 10, textColor: textColor, cellPadding: { top: 1.5, right: 2, bottom: 1.5, left: 0 } },
                     columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
                 });
@@ -412,12 +407,13 @@
 
                 // SECCIÓN 3: PRODUCTOS
                 if(companyData.productos && companyData.productos.length > 0) {
+                    startY = startY > pageHeight - 50 ? (doc.addPage(), 30) : startY;
                     doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
                     doc.text("3. Productos / Servicios", margin, startY);
                     startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
-                    const productBody = companyData.productos.map((p, i) => [i + 1, p]);
                     doc.autoTable({
-                        startY: startY, head: [['#', 'Nombre del Producto/Servicio']], body: productBody, theme: 'grid',
+                        startY: startY, head: [['#', 'Nombre del Producto/Servicio']], 
+                        body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid',
                         headStyles: { fillColor: primaryColor, textColor: '#FFFFFF' }
                     });
                     startY = doc.previousAutoTable.finalY + 15;
@@ -429,6 +425,7 @@
                     const base64Images = (await Promise.all(imageUrls.map(getBase64Image))).filter(Boolean);
 
                     if(base64Images.length > 0) {
+                        startY = startY > pageHeight - 80 ? (doc.addPage(), 30) : startY;
                         doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
                         doc.text("4. Galería de Imágenes", margin, startY);
                         startY += 4; doc.line(margin, startY, pageWidth - margin, startY); startY += 10;
@@ -437,25 +434,25 @@
                         const imgPadding = 5;
                         const availableWidth = pageWidth - (margin * 2) - (imgPadding * (imagesPerRow - 1));
                         const imgWidth = availableWidth / imagesPerRow;
-                        const imgHeight = imgWidth * (9 / 16); // Aspect ratio 16:9
+                        const imgHeight = imgWidth * (9 / 16);
 
                         let currentX = margin;
-                        base64Images.forEach((imgBase64, index) => {
-                            if (startY + imgHeight > pageHeight - margin - 15) {
+                        for(const imgBase64 of base64Images) {
+                            if (startY + imgHeight > pageHeight - 20) {
                                 addHeaderFooter();
                                 doc.addPage();
-                                startY = 30; 
+                                startY = 30;
                             }
-                            
                             doc.addImage(imgBase64, 'JPEG', currentX, startY, imgWidth, imgHeight);
-
-                            if ((index + 1) % imagesPerRow === 0) {
+                            
+                            const isLastInRow = (base64Images.indexOf(imgBase64) + 1) % imagesPerRow === 0;
+                            if (isLastInRow) {
                                 currentX = margin;
                                 startY += imgHeight + imgPadding;
                             } else {
                                 currentX += imgWidth + imgPadding;
                             }
-                        });
+                        }
                     }
                 }
 
@@ -596,18 +593,17 @@
         prevBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex - 1 + currentModalItem.imagenes.length) % currentModalItem.imagenes.length; updateCarouselImage(); } });
         nextBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex + 1) % currentModalItem.imagenes.length; updateCarouselImage(); } });
         downloadPdfBtn.addEventListener('click', downloadPDF);
-        [viewCardBtn, viewMosaicBtn, viewListBtn].forEach(button => {
+        document.querySelectorAll('.view-btn').forEach(button => {
             button.addEventListener('click', () => {
                 document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 grid.classList.remove('view-mosaic', 'view-list');
-                if (button === viewMosaicBtn) grid.classList.add('view-mosaic');
-                if (button === viewListBtn) grid.classList.add('view-list');
+                if (button.id === 'view-mosaic-btn') grid.classList.add('view-mosaic');
+                if (button.id === 'view-list-btn') grid.classList.add('view-list');
             });
         });
     });
     
-    // --- MÓDULO DE THREE.JS ---
     (() => { const canvas = document.getElementById('three-canvas'); if (!canvas) return; const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); const particlesGeometry = new THREE.BufferGeometry; const count = 5000; const positions = new Float32Array(count * 3); for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 10; } particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, sizeAttenuation: true, color: new THREE.Color('#38bdf8') }); const particles = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particles); camera.position.z = 5; const clock = new THREE.Clock(); const animate = () => { const elapsedTime = clock.getElapsedTime(); particles.rotation.y = elapsedTime * 0.05; particles.rotation.x = elapsedTime * 0.05; renderer.render(scene, camera); window.requestAnimationFrame(animate); }; animate(); window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); }); })();
     </script>
 </body>
