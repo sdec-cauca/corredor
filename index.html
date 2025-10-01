@@ -137,7 +137,6 @@
         #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; background-color: transparent; }
         #download-pdf-btn svg { width: 24px; height: 24px; display: block; }
 
-        /* --- NUEVO: ESTILOS PARA EL SPINNER --- */
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
 
@@ -245,34 +244,62 @@
         // --- INICIO: SECCIÓN DE GENERACIÓN DE PDF (ROBUSTA Y CORREGIDA) ---
 
         /**
-         * Transforma una URL de Google Drive de "vista previa" a una URL de "descarga directa".
+         * NUEVA FUNCIÓN ROBUSTA: Toma un elemento <img> del DOM, lo dibuja en un canvas
+         * con bordes redondeados y devuelve la imagen en Base64.
+         * @param {HTMLImageElement} imgElement - El elemento de imagen ya cargado en la página.
+         * @param {number} radius - El radio de los bordes.
+         * @returns {Promise<string|null>} Base64 de la imagen recortada o null si falla.
          */
-        function getDirectGoogleDriveUrl(url) {
-            if (!url || !url.includes('drive.google.com')) return url;
-            const match = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
-            return (match && match[1]) ? `https://drive.google.com/uc?export=view&id=${match[1]}` : url;
+        function getBase64FromImageElement(imgElement, radius) {
+            return new Promise((resolve) => {
+                try {
+                    if (!imgElement || !imgElement.complete || imgElement.naturalHeight === 0) {
+                        // Si la imagen no está cargada o está rota, no podemos procesarla.
+                        resolve(null);
+                        return;
+                    }
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const dpr = window.devicePixelRatio || 1;
+                    canvas.width = imgElement.naturalWidth * dpr;
+                    canvas.height = imgElement.naturalHeight * dpr;
+                    ctx.scale(dpr, dpr);
+
+                    ctx.beginPath();
+                    ctx.moveTo(radius, 0);
+                    ctx.lineTo(imgElement.naturalWidth - radius, 0);
+                    ctx.quadraticCurveTo(imgElement.naturalWidth, 0, imgElement.naturalWidth, radius);
+                    ctx.lineTo(imgElement.naturalWidth, imgElement.naturalHeight - radius);
+                    ctx.quadraticCurveTo(imgElement.naturalWidth, imgElement.naturalHeight, imgElement.naturalWidth - radius, imgElement.naturalHeight);
+                    ctx.lineTo(radius, imgElement.naturalHeight);
+                    ctx.quadraticCurveTo(0, imgElement.naturalHeight, 0, imgElement.naturalHeight - radius);
+                    ctx.lineTo(0, radius);
+                    ctx.quadraticCurveTo(0, 0, radius, 0);
+                    ctx.closePath();
+                    ctx.clip();
+                    
+                    ctx.drawImage(imgElement, 0, 0, imgElement.naturalWidth, imgElement.naturalHeight);
+                    
+                    resolve(canvas.toDataURL('image/jpeg', 0.9));
+                } catch (e) {
+                    console.error("Error al procesar la imagen del DOM:", e);
+                    resolve(null);
+                }
+            });
         }
 
         /**
-         * Convierte una URL de imagen a formato Base64, usando un sistema de proxies con respaldo.
+         * Para la galería, todavía necesitamos descargar. Esta función usa un proxy de respaldo.
          */
-        async function getBase64Image(url) {
+        async function getBase64FromUrl(url) {
             if (!url) return null;
-
-            const directUrl = getDirectGoogleDriveUrl(url);
-            // Lista de proxies a intentar en orden.
-            const proxies = [
-                'https://corsproxy.io/?',
-                'https://api.allorigins.win/raw?url='
-            ];
-
+            const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
             for (const proxy of proxies) {
-                const fetchUrl = proxy + encodeURIComponent(directUrl);
                 try {
-                    console.log(`Intentando cargar imagen vía ${proxy.split('/')[2]}: ${directUrl}`);
+                    const fetchUrl = proxy + encodeURIComponent(url);
                     const response = await fetch(fetchUrl);
-                    if (!response.ok) throw new Error(`Respuesta de red no fue OK`);
-                    
+                    if (!response.ok) throw new Error('Response not OK');
                     const blob = await response.blob();
                     return new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -281,21 +308,19 @@
                         reader.readAsDataURL(blob);
                     });
                 } catch (error) {
-                    console.warn(`Fallo el proxy ${proxy.split('/')[2]}:`, error.message);
-                    // Si falla, el bucle continuará con el siguiente proxy.
+                    console.warn(`Proxy ${proxy.split('/')[2]} falló para ${url}, intentando siguiente.`);
                 }
             }
-
-            console.error(`Todos los proxies fallaron para la imagen: ${directUrl}`);
-            return null; // Devuelve null si todos los proxies fallan.
+            console.error(`Todos los proxies fallaron para la imagen: ${url}`);
+            return null;
         }
+
 
         async function downloadPDF() {
             if (!currentModalItem) return;
 
             const originalButtonContent = downloadPdfBtn.innerHTML;
             downloadPdfBtn.disabled = true;
-            // --- NUEVO: Se inserta el SVG del spinner ---
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
             
             try {
@@ -306,33 +331,32 @@
                 const margin = 14;
                 const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 
-                const logoBase64 = await getBase64Image(companyData.logo);
+                // --- 1. OBTENER EL LOGO DIRECTAMENTE DEL DOM (MÁS FIABLE) ---
+                const logoImgElement = document.getElementById('modal-logo');
+                const logoBase64 = await getBase64FromImageElement(logoImgElement, 22); // 22px de radio
 
                 const addHeaderFooter = () => {
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
                         doc.setPage(i);
                         doc.setFillColor(headerColor);
                         doc.rect(0, 0, pageWidth, 25, 'F');
+                        
                         if (logoBase64) {
-                            const logoSize = 18, logoX = margin, logoY = (25 - logoSize) / 2, borderRadius = 9;
-                            doc.save();
-                            doc.beginPath(); doc.roundedRect(logoX, logoY, logoSize, logoSize, borderRadius, borderRadius); doc.clip();
-                            doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
-                            doc.restore();
+                            const logoSize = 18;
+                            doc.addImage(logoBase64, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize);
                         }
-                        doc.setFontSize(10); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold');
-                        doc.text(`Ficha de la Empresa "${companyData.nombreEmprendimiento}"`, pageWidth / 2, 15, { align: 'center' });
+
+                        doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold');
+                        // --- TÍTULO CORREGIDO ---
+                        doc.text(`FICHA DE EMPRESA "${companyData.nombreEmprendimiento.toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
+                        
                         doc.setFontSize(8); doc.setTextColor(primaryColor);
                         doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
                         doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
                     }
                 };
 
-                let startY = 35;
-                doc.setFontSize(11); doc.setTextColor(textColor);
-                doc.text(`Fecha de Ficha: ${new Date().toLocaleDateString()}`, pageWidth - margin, startY, { align: 'right' });
-                startY += 10;
-                
+                let startY = 35; //... resto de la lógica del PDF
                 const addSectionTitle = (title, y) => {
                     if (y > pageHeight - 40) { doc.addPage(); y = 30; }
                     doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor);
@@ -343,7 +367,7 @@
 
                 startY = addSectionTitle("1. Información de la Empresa", startY);
                 doc.autoTable({
-                    startY, body: [['Nombre:', companyData.nombreEmprendimiento, 'Categoría:', companyData.categoria], ['Ubicación:', companyData.municipio, 'Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion, 'Constituido:', companyData.constituido], ['Email:', companyData.email, 'Celular:', companyData.telefono]], theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold' }, 2: { fontStyle: 'bold' } }
+                    startY, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido], ['Email:', companyData.email], ['Celular:', companyData.telefono]], theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold' } }
                 });
                 startY = doc.previousAutoTable.finalY + 15;
 
@@ -352,7 +376,7 @@
                 const descriptionLines = doc.splitTextToSize(companyData.descripcion || 'N/A', pageWidth - (margin * 2));
                 doc.text(descriptionLines, margin, startY);
                 startY += (descriptionLines.length * 5) + 10;
-
+                
                 if(companyData.productos && companyData.productos.length > 0) {
                     startY = addSectionTitle("3. Productos / Servicios", startY);
                     doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } });
@@ -361,7 +385,7 @@
 
                 const imageUrls = (companyData.imagenes || []).filter(Boolean);
                 if (imageUrls.length > 0) {
-                    const base64Images = (await Promise.all(imageUrls.map(getBase64Image))).filter(Boolean);
+                    const base64Images = (await Promise.all(imageUrls.map(getBase64FromUrl))).filter(Boolean);
                     if(base64Images.length > 0) {
                         startY = addSectionTitle("4. Galería de Imágenes", startY);
                         const imgPerRow=2, pad=5, availW=pageWidth-(margin*2)-(pad*(imgPerRow-1)), imgW=availW/imgPerRow, imgH=imgW*(9/16);
@@ -384,12 +408,11 @@
                 alert("Hubo un error al generar el PDF. Revisa la consola para más detalles.");
             } finally {
                 downloadPdfBtn.disabled = false;
-                downloadPdfBtn.innerHTML = originalButtonContent; // Restaura el icono original
+                downloadPdfBtn.innerHTML = originalButtonContent;
             }
         }
-        // --- FIN: SECCIÓN DE GENERACIÓN DE PDF ---
-
-
+        
+        // --- RESTO DEL SCRIPT (SIN CAMBIOS) ---
         const parseCSV = (csvText) => {
             const lines = csvText.trim().split('\n');
             const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
@@ -405,7 +428,6 @@
                 return obj;
             });
         };
-
         const renderCards = (items) => {
             grid.innerHTML = '';
             if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos.</p>`; return; }
@@ -426,14 +448,12 @@
                 grid.appendChild(card);
             });
         };
-        
         const populateFilters = () => {
             const sectors = [...new Set(emprendimientos.map(item => item.sectorPrimario))].filter(Boolean);
             sectors.sort().forEach(s => sectorFilter.innerHTML += `<option value="${s}">${s}</option>`);
             const locations = [...new Set(emprendimientos.map(item => item.municipio))].filter(Boolean);
             locations.sort().forEach(l => locationFilter.innerHTML += `<option value="${l}">${l}</option>`);
         };
-        
         const handleSectorChange = () => {
             const selectedSector = sectorFilter.value;
             categoryFilter.innerHTML = '<option value="todos">Seleccione un sector</option>';
@@ -446,7 +466,6 @@
             }
             applyFilters();
         };
-
         const applyFilters = () => {
             const searchTerm = normalizeText(searchInput.value), selectedSector = sectorFilter.value;
             const selectedCategory = categoryFilter.value, selectedLocation = locationFilter.value;
@@ -459,10 +478,11 @@
             });
             renderCards(filtered);
         };
-        
         const openModal = (item) => {
             currentModalItem = item; currentImageIndex = 0;
-            document.getElementById('modal-logo').src = item.logo || '';
+            const logoEl = document.getElementById('modal-logo');
+            logoEl.src = item.logo || '';
+            logoEl.crossOrigin = "Anonymous"; // Importante para poder leerlo en el canvas
             document.getElementById('modal-name').textContent = item.nombreEmprendimiento || '';
             document.getElementById('modal-description').textContent = item.descripcion || '';
             document.getElementById('modal-representative').textContent = item.nombreRepresentante || '';
@@ -480,12 +500,14 @@
             updateCarouselImage();
             modal.classList.add('is-active');
         };
-
         const updateCarouselImage = () => {
-            if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250';
+            if (currentModalItem) {
+                const imgEl = document.getElementById('modal-image');
+                imgEl.src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250';
+                imgEl.crossOrigin = "Anonymous"; // Importante para el futuro si se necesita leer
+            }
         };
         const closeModal = () => modal.classList.remove('is-active');
-
         async function initializeApp() {
             try {
                 const response = await fetch(googleSheetURL);
@@ -506,7 +528,6 @@
                 console.error('Error initializing app:', error);
             }
         }
-
         initializeApp();
         modalCloseBtn.addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
