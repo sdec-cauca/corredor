@@ -87,8 +87,11 @@
             min-width: 200px;
             flex-basis: 100%;
         }
+       
+        /* --- CAMBIO 1: Ajuste de Flexbox para mejor responsividad --- */
         .filter-select { 
-            flex-grow: 1;
+            /* Esto permite que los selectores crezcan y se encojan de forma fluida */
+            flex: 1 1 180px; 
         }
         
         .search-input::placeholder { color: #9ca3af; }
@@ -185,37 +188,36 @@
         .social-link svg { width: 24px; height: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* --- INICIO: CÓDIGO AÑADIDO PARA LA CINTA --- */
+        /* --- ESTILO PARA LA CINTA DE LA BANDERA DEL CAUCA --- */
         .modal-content {
-            /* Se necesita overflow visible para que la cinta no se corte por el border-radius */
             overflow: visible;
         }
 
+        /* --- CAMBIO 2: Ajuste de posición y sombra para mayor sutileza --- */
         .modal-content::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 120px; /* Ancho de la cinta */
-            height: 30px; /* Alto de la cinta */
-            /* Colores de la bandera del Cauca: Amarillo, Verde, Rojo */
+            width: 120px;
+            height: 30px; 
             background: linear-gradient(
                 to bottom, 
-                #fcd116 33.3%,  /* Amarillo */
+                #fcd116 33.3%,
                 #009639 33.3%, 
-                #009639 66.6%,  /* Verde */
-                #ce1126 66.6%   /* Rojo */
+                #009639 66.6%,
+                #ce1126 66.6%
             );
             transform: rotate(-45deg);
             transform-origin: 0 0;
-            /* Ajuste fino de la posición para que encaje en la esquina */
-            top: 32px;
-            left: -32px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            /* Posición ajustada para "abrazar" mejor la esquina */
+            top: 25px;
+            left: -35px;
+            /* Sombra más sutil */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
             border: 1px solid rgba(0,0,0,0.1);
             z-index: 5; 
         }
-        /* --- FIN: CÓDIGO AÑADIDO PARA LA CINTA --- */
 
         /* --- ESTILOS RESPONSIVE GENERALES --- */
         @media (max-width: 640px) { 
@@ -233,11 +235,8 @@
         }
 
         /* --- CORRECCIÓN RESPONSIVE PARA MÓVILES PEQUEÑOS --- */
-        @media (max-width: 480px) {
-            .search-input, .filter-select {
-                min-width: 0; /* Permite que los inputs se encojan y evita el desbordamiento */
-            }
-        }
+        /* Ya no es necesario el media query para 480px, el nuevo flexbox lo maneja mejor. */
+
     </style>
 </head>
 <body>
