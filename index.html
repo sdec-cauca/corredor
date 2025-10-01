@@ -143,7 +143,6 @@
         .showcase-grid.view-list .company-category { margin-top: 0; text-align: center; flex-shrink: 0; width: 150px; }
         .showcase-grid.view-list .company-location { display: block; flex-shrink: 0; width: 150px; text-align: right; }
 
-        /* --- MODAL --- */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
         .modal.is-active { display: flex; }
         .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
@@ -168,11 +167,10 @@
         .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
         #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
         
-        /* --- ESTILOS DEL POPUP CORREGIDOS --- */
         .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
         .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); }
         .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
-        .modal-body .whatsapp-link { display: inline-flex; } /* Alinea el icono de whatsapp */
+        .modal-body .whatsapp-link { display: inline-flex; }
 
         .whatsapp-link { align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
         .whatsapp-link:hover { transform: scale(1.1); }
@@ -323,15 +321,21 @@
             });
         }
 
+        // --- CAMBIO: FUNCIÓN DE PDF RESTAURADA Y MEJORADA ---
         async function downloadPDF() {
             if (!currentModalItem) return;
             const originalButtonContent = downloadPdfBtn.innerHTML;
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
+            
+            // Función para limpiar texto de saltos de línea
+            const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ');
+
             try {
                 const { jsPDF } = window.jspdf; const doc = new jsPDF(); const companyData = currentModalItem;
                 const pageWidth = doc.internal.pageSize.getWidth(), pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 14; const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
+                
                 const logoBase64Raw = await getBase64FromUrl(companyData.logo);
                 const logoBase64Rounded = await getRoundedImageBase64(logoBase64Raw, 22);
                 
@@ -339,37 +343,48 @@
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
                         doc.setPage(i); doc.setFillColor(headerColor); doc.rect(0, 0, pageWidth, 25, 'F');
                         if (logoBase64Rounded) { const logoSize = 18; doc.addImage(logoBase64Rounded, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize); }
-                        doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: ${(companyData.nombreEmprendimiento || '').toUpperCase()}`, pageWidth / 2, 15, { align: 'center' });
+                        doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: ${sanitizeText(companyData.nombreEmprendimiento).toUpperCase()}`, pageWidth / 2, 15, { align: 'center' });
                         doc.setFontSize(8); doc.setTextColor(primaryColor); doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' }); doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
                     }
                 };
                 
-                let startY = 35;
+                let startY = 35; let sectionCounter = 1;
                 const addSectionTitle = (title, y) => {
                     if (y > pageHeight - 40) { doc.addPage(); y = 30; }
-                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(title, margin, y); y += 4; doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y); return y + 8;
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(`${sectionCounter}. ${title}`, margin, y); y += 4; doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y); sectionCounter++; return y + 8;
                 };
 
-                startY = addSectionTitle("1. Información General", startY);
-                doc.autoTable({ startY, theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante],['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido],['Email:', companyData.email], ['Celular:', companyData.telefono]], columnStyles: { 0: { fontStyle: 'bold' } } });
+                startY = addSectionTitle("Información General", startY);
+                doc.autoTable({
+                    startY, theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 },
+                    body: [
+                        ['Nombre:', sanitizeText(companyData.nombreEmprendimiento)], ['Categoría:', sanitizeText(companyData.categoria)],
+                        ['Ubicación:', sanitizeText(companyData.municipio)], ['Representante:', sanitizeText(companyData.nombreRepresentante)],
+                        ['Dirección:', sanitizeText(companyData.direccion)], ['Constituido:', sanitizeText(companyData.constituido)],
+                        ['Email:', sanitizeText(companyData.email)], ['Celular:', sanitizeText(companyData.telefono)]
+                    ].map(row => [row[0], sanitizeText(row[1])]), // Sanitiza todos los valores
+                    columnStyles: { 0: { fontStyle: 'bold' } }
+                });
                 startY = doc.previousAutoTable.finalY + 15;
                 
                 if (companyData.descripcion) {
-                    startY = addSectionTitle("2. Descripción", startY);
-                    const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
+                    startY = addSectionTitle("Descripción", startY);
+                    const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2));
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(descriptionLines, margin, startY);
                     startY += (descriptionLines.length * 5) + 10;
                 }
 
                 if(companyData.productos && companyData.productos.length > 0) {
-                    startY = addSectionTitle("3. Productos / Servicios", startY);
-                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } });
+                    startY = addSectionTitle("Productos / Servicios", startY);
+                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, sanitizeText(p)]), theme: 'grid', headStyles: { fillColor: primaryColor } });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
                 if (companyData.instagram || companyData.facebook) {
-                    startY = addSectionTitle("4. Redes Sociales", startY);
-                    const socialData = []; if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]); if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
+                    startY = addSectionTitle("Redes Sociales", startY);
+                    const socialData = []; 
+                    if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]);
+                    if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
                     doc.autoTable({ startY, head: [['Red Social', 'Enlace']], body: socialData, theme: 'grid', headStyles: { fillColor: primaryColor }, columnStyles: { 1: { textColor: [40, 90, 190] } }, didDrawCell: (data) => { if (data.section === 'body' && data.column.index === 1) { doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] }); } } });
                     startY = doc.previousAutoTable.finalY + 15;
                 }
@@ -378,7 +393,7 @@
                 if (imageUrls.length > 0) {
                     const base64Images = (await Promise.all(imageUrls.map(getBase64FromUrl))).filter(Boolean);
                     if(base64Images.length > 0) {
-                        startY = addSectionTitle("5. Galería de Imágenes", startY);
+                        startY = addSectionTitle("Galería de Imágenes", startY);
                         const imgPerRow=2, pad=5, availW=pageWidth-(margin*2)-(pad*(imgPerRow-1)), imgW=availW/imgPerRow, imgH=imgW*(9/16); let currentX = margin;
                         for(const imgBase64 of base64Images) {
                             if (startY + imgH > pageHeight - 20) { doc.addPage(); startY = 30; }
@@ -390,9 +405,14 @@
                 }
 
                 addHeaderFooter();
-                doc.save(`Ficha_${companyData.nombreEmprendimiento.replace(/\s/g, '_')}.pdf`);
-            } catch (error) { console.error("Error al generar el PDF:", error); alert("Hubo un error al generar el PDF.");
-            } finally { downloadPdfBtn.disabled = false; downloadPdfBtn.innerHTML = originalButtonContent; }
+                doc.save(`Ficha_${sanitizeText(companyData.nombreEmprendimiento).replace(/\s/g, '_')}.pdf`);
+            } catch (error) { 
+                console.error("Error al generar el PDF:", error); 
+                alert("Hubo un error al generar el PDF.");
+            } finally { 
+                downloadPdfBtn.disabled = false; 
+                downloadPdfBtn.innerHTML = originalButtonContent; 
+            }
         }
         
         const parseCSV = (csvText) => {
