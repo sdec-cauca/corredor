@@ -56,7 +56,6 @@
         }
         .header p { font-size: 1.1rem; color: #9ca3af; }
 
-        /* --- ESTILOS DE FILTROS BASADOS EN TU ARCHIVO DE EJEMPLO --- */
         .filters-container {
             padding: 1.5rem;
             background: var(--color-glass);
@@ -81,10 +80,10 @@
             font-size: 1rem;
             font-family: 'Poppins', sans-serif;
             transition: border-color 0.3s;
-            height: 44px; /* Altura consistente */
+            height: 44px;
         }
         .search-input { flex-grow: 1; min-width: 200px; }
-        .filter-select { flex: 1 1 180px; } /* Flexibilidad para selects */
+        .filter-select { flex: 1 1 180px; }
         .search-input::placeholder { color: #9ca3af; }
         .search-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); }
         .filter-select:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
@@ -92,7 +91,7 @@
         .view-controls {
             display: flex;
             gap: 0.5rem;
-            margin-left: auto; /* Empuja los iconos a la derecha */
+            margin-left: auto;
         }
         .view-btn {
             background-color: var(--color-bg-light);
@@ -114,13 +113,13 @@
             color: var(--color-bg);
         }
         .view-btn.active svg { opacity: 1; }
-
-        /* --- ESTILOS DE TARJETAS BASADOS EN TU ARCHIVO DE EJEMPLO --- */
+        
         .showcase-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
         }
+        
         .loading-message, .no-results { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; }
         
         .company-card {
@@ -146,18 +145,15 @@
         .card-product-badge { background-color: var(--color-bg); color: #d1d5db; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; }
         .company-category { display: inline-block; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-top: auto; align-self: flex-start; }
         
-        /* Vista Mosaico */
         .showcase-grid.view-mosaic { gap: 0.5rem; }
-        .showcase-grid.view-mosaic .card-content { display: none; } /* Simplificado como en el ejemplo */
+        .showcase-grid.view-mosaic .card-content { display: none; }
 
-        /* Vista de Lista */
-        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 1rem;}
+        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 1rem; }
         .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; }
         .showcase-grid.view-list .company-card:hover { transform: translateY(-5px); }
         .showcase-grid.view-list .card-banner { width: 120px; height: 120px; flex-shrink: 0; }
         .showcase-grid.view-list .card-content { padding: 1rem 1.5rem; flex-grow: 1; }
-        
-        /* MODAL */
+
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
         .modal.is-active { display: flex; }
         .modal-content {
@@ -174,7 +170,7 @@
             overflow-x: hidden;
         }
         
-        /* --- RIBBON DE LA BANDERA DEL CAUCA (CORREGIDO) --- */
+        /* --- CAMBIO 1: BANDERA DEL CAUCA CORREGIDA (COLORES Y ÁNGULO) --- */
         .modal-content { overflow: hidden; }
         .modal-content::before {
             content: '';
@@ -183,9 +179,9 @@
             left: 0;
             width: 100px;
             height: 100px;
-            /* Colores correctos: Verde, Amarillo, Verde */
+            /* Ángulo corregido para mostrar las 3 franjas en el triángulo */
             background: linear-gradient(
-                135deg,
+                -45deg,
                 #009639 33.3%, /* Verde */
                 #fcd116 33.3%, 
                 #fcd116 66.6%, /* Amarillo */
@@ -215,9 +211,19 @@
         .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
         .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
         #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
-        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); display: inline; }
-        .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
+        
+        /* --- CAMBIO 2: CORRECCIÓN DE LAYOUT DE LA INFORMACIÓN DEL POPUP --- */
+        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .modal-body > div { /* Contenedor de cada item (label+value) */ line-height: 1.5; }
+        .modal-body p { display: inline; color: var(--color-text); }
+        .modal-body strong {
+            color: var(--color-primary);
+            font-weight: 600; /* Más énfasis en la etiqueta */
+            margin-right: 0.5rem; /* Espacio entre etiqueta y valor */
+            font-size: 0.9rem;
+            /* Se elimina el display: block que causaba el salto de línea */
+        }
+        
         .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
         .whatsapp-link:hover { transform: scale(1.1); }
         .whatsapp-link svg { width: 20px; height: 20px; }
@@ -227,9 +233,7 @@
         .social-link svg { width: 24px; height: 24px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @media (max-width: 768px) {
-            .showcase-grid.view-list .card-banner { width: 100px; height: 100px; }
-        }
+        @media (max-width: 768px) { .showcase-grid.view-list .card-banner { width: 100px; height: 100px; } }
         @media (max-width: 640px) {
             .header h1 { font-size: 2.2rem; }
             .filters-container { flex-direction: column; align-items: stretch; }
@@ -263,17 +267,10 @@
             <select id="locationFilter" class="filter-select">
                 <option value="todos">Todas las Ubicaciones</option>
             </select>
-            
             <div class="view-controls">
-                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                </button>
-                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg>
-                </button>
-                <button id="view-list-btn" class="view-btn" title="Vista de Lista">
-                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-                </button>
+                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg></button>
+                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg></button>
+                <button id="view-list-btn" class="view-btn" title="Vista de Lista"><svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg></button>
             </div>
         </div>
 
@@ -385,7 +382,8 @@
                         doc.setPage(i); doc.setFillColor(headerColor); doc.rect(0, 0, pageWidth, 25, 'F');
                         if (logoBase64) {
                             const logoSize = 18;
-                            doc.addImage(logoBase64, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize, 'logo', 'MEDIUM', 0, true);
+                            try { doc.addImage(logoBase64, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize); }
+                            catch (e) { console.error("Error adding logo to PDF:", e); }
                         }
                         doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: ${(companyData.nombreEmprendimiento || '').toUpperCase()}`, pageWidth / 2, 15, { align: 'center' });
                         doc.setFontSize(8); doc.setTextColor(primaryColor); doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' }); doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
@@ -393,12 +391,12 @@
                 };
                 
                 let startY = 35;
-                const addSectionTitle = (title) => {
-                    if (startY > pageHeight - 40) { doc.addPage(); startY = 30; }
-                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(title, margin, startY); startY += 4; doc.setDrawColor(primaryColor); doc.line(margin, startY, pageWidth - margin, startY); startY += 8;
+                const addSectionTitle = (title, y) => {
+                    if (y > pageHeight - 40) { doc.addPage(); y = 30; }
+                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(title, margin, y); y += 4; doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y); return y + 8;
                 };
 
-                addSectionTitle("1. Información General");
+                startY = addSectionTitle("1. Información General", startY);
                 doc.autoTable({
                     startY, theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 },
                     body: [
@@ -412,7 +410,7 @@
                 startY = doc.previousAutoTable.finalY + 10;
                 
                 if (companyData.descripcion) {
-                    addSectionTitle("2. Descripción");
+                    startY = addSectionTitle("2. Descripción", startY);
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal');
                     const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
                     doc.text(descriptionLines, margin, startY);
@@ -420,7 +418,7 @@
                 }
 
                 if(companyData.productos && companyData.productos.length > 0) {
-                    addSectionTitle("3. Productos / Servicios");
+                    startY = addSectionTitle("3. Productos / Servicios", startY);
                     doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } });
                     startY = doc.previousAutoTable.finalY + 10;
                 }
