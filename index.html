@@ -283,39 +283,70 @@
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
         
+        // =========================================================================
+        // INICIO: LÓGICA DE IMÁGENES CORREGIDA
+        // =========================================================================
         const processImageUrl = (url) => {
             if (!url) return '';
+            const proxy = 'https://api.allorigins.win/raw?url=';
+
+            // 1. Maneja enlaces de Google Drive
             if ((url.includes('drive.google.') || url.includes('drive.usercontent.google.')) && url.includes('id=')) {
                 const match = url.match(/[?&]id=([^&]+)/);
                 if (match && match[1]) {
                     const standardUrl = `https://drive.google.com/uc?export=view&id=${match[1]}`;
-                    return `https://corsproxy.io/?${encodeURIComponent(standardUrl)}`;
+                    return proxy + encodeURIComponent(standardUrl);
                 }
             }
+            
+            // 2. Maneja enlaces de CDNs de redes sociales y Google User Content
             if (url.includes('fbcdn.net') || url.includes('cdninstagram.com') || url.includes('lh3.googleusercontent.com')) {
-                 return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                 return proxy + encodeURIComponent(url);
             }
+            
+            // 3. Devuelve cualquier otro enlace tal cual
             return url;
         };
 
         async function getBase64FromUrl(url) {
             if (!url) return null;
-            const finalUrl = url.includes('corsproxy.io') ? url : `https://corsproxy.io/?${encodeURIComponent(url)}`;
-            try {
-                const response = await fetch(finalUrl, { cache: "no-store" });
-                if (!response.ok) throw new Error('Response not OK');
-                const blob = await response.blob();
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            } catch (error) { 
-                console.error(`Fallo al obtener la imagen para el PDF: ${url}`, error);
-                return null;
+            
+            // Des-procesa la URL si ya tiene el proxy de 'allorigins' para probar otras opciones
+            let originalUrl = url;
+            const proxyPrefix = 'https://api.allorigins.win/raw?url=';
+            if (url.startsWith(proxyPrefix)) {
+                originalUrl = decodeURIComponent(url.substring(proxyPrefix.length));
             }
+
+            // Lista de URLs a intentar, incluyendo proxies
+            const urlsToTry = [
+                originalUrl, // Intento directo primero
+                `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`
+            ];
+
+            for (const fetchUrl of urlsToTry) {
+                try {
+                    const response = await fetch(fetchUrl, { cache: "no-store" });
+                    if (!response.ok) throw new Error(`Response not OK for ${fetchUrl}`);
+                    const blob = await response.blob();
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(blob);
+                    });
+                } catch (error) {
+                    console.warn(`Falló el intento de carga para PDF con: ${fetchUrl}. Intentando siguiente...`);
+                }
+            }
+
+            console.error(`Todos los intentos fallaron para obtener la imagen para el PDF: ${originalUrl}`);
+            return null;
         }
+        // =========================================================================
+        // FIN: LÓGICA DE IMÁGENES CORREGIDA
+        // =========================================================================
         
         function getRoundedImageBase64(base64, radius) {
             return new Promise((resolve) => {
