@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-T">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vitrina Digital de Emprendimientos</title>
     
@@ -327,6 +327,7 @@
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
             
+            // Esta función ahora se usa de manera selectiva, principalmente para la descripción en el PDF.
             const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ').trim();
 
             try {
@@ -373,8 +374,18 @@
                 
                 if (companyData.descripcion) {
                     startY = addSectionTitle("Descripción", startY);
-                    // --- CORRECCIÓN APLICADA AQUÍ ---
-                    const descriptionLines = doc.splitTextToSize(companyData.descripcion || '', pageWidth - (margin * 2));
+                    
+                    // =============================================================================
+                    // INICIO DE LA CORRECCIÓN DEFINITIVA
+                    // Se vuelve a usar sanitizeText AQUÍ y SÓLO AQUÍ para la descripción.
+                    // Esto elimina los saltos de línea no deseados del CSV y crea un párrafo
+                    // limpio y justificado en el PDF.
+                    // =============================================================================
+                    const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2));
+                    // =============================================================================
+                    // FIN DE LA CORRECCIÓN DEFINITIVA
+                    // =============================================================================
+                    
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(descriptionLines, margin, startY);
                     startY += (descriptionLines.length * 5) + 10;
                 }
@@ -420,13 +431,12 @@
             }
         }
         
-        // --- FUNCIÓN PARSECSV CORREGIDA ---
+        // La función parseCSV se mantiene robusta para leer correctamente los datos.
         const parseCSV = (csvText) => {
             const lines = [];
             let currentLine = '';
             let inQuotes = false;
 
-            // Recorre el texto para separar por líneas, respetando las que están dentro de comillas
             for (const char of csvText.trim().replace(/\r\n/g, '\n')) {
                 if (char === '"') {
                     inQuotes = !inQuotes;
@@ -438,9 +448,8 @@
                     currentLine += char;
                 }
             }
-            lines.push(currentLine); // Agrega la última línea
+            lines.push(currentLine); 
 
-            // Procesa las líneas ya separadas correctamente
             if (lines.length < 2) return [];
             const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
             
@@ -449,7 +458,6 @@
                 let currentVal = '';
                 let inQuotesForRow = false;
                 
-                // Itera sobre cada caracter de la línea para separar por columnas
                 for (let char of line) {
                     if (char === '"') {
                         inQuotesForRow = !inQuotesForRow;
@@ -460,7 +468,7 @@
                         currentVal += char;
                     }
                 }
-                values.push(currentVal.trim().replace(/^"|"$/g, '')); // Agrega el último valor
+                values.push(currentVal.trim().replace(/^"|"$/g, ''));
                 
                 const obj = {};
                 headers.forEach((header, index) => {
