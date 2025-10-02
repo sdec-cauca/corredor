@@ -169,7 +169,7 @@
         .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
         #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
         .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); display: inline; }
+        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); }
         .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
         .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
         .whatsapp-link:hover { transform: scale(1.1); }
@@ -353,6 +353,9 @@
             });
         }
         
+        // =========================================================================
+        // INICIO: LÓGICA DE DESCARGA DE PDF CORRECTA (DEL ARCHIVO VIEJO)
+        // =========================================================================
         async function downloadPDF() {
             if (!currentModalItem) return;
             const originalButtonContent = downloadPdfBtn.innerHTML;
@@ -388,9 +391,7 @@
                     startY = addSectionTitle("Descripción", startY); 
                     doc.setFontSize(10); 
                     doc.setFont('helvetica', 'normal');
-                    
                     const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
-                    
                     doc.text(descriptionLines, margin, startY); 
                     startY += (descriptionLines.length * 5) + 10;
                 }
@@ -435,6 +436,9 @@
                 downloadPdfBtn.innerHTML = originalButtonContent; 
             }
         }
+        // =========================================================================
+        // FIN: LÓGICA DE DESCARGA DE PDF CORRECTA
+        // =========================================================================
 
         const renderCards = (items) => {
             grid.innerHTML = '';
@@ -482,24 +486,28 @@
             });
             renderCards(filtered);
         };
+
         const openModal = (item) => {
             currentModalItem = item; currentImageIndex = 0;
-            document.getElementById('modal-logo').src = item.logo || ''; 
-            document.getElementById('modal-name').textContent = item.nombreEmprendimiento || ''; 
-            document.getElementById('modal-description').textContent = item.descripcion || ''; 
-            document.getElementById('modal-representative').textContent = item.nombreRepresentante || ''; 
-            document.getElementById('modal-location').textContent = item.municipio || ''; 
-            document.getElementById('modal-email').textContent = item.email || ''; 
-            document.getElementById('modal-address').textContent = item.direccion || ''; 
+            document.getElementById('modal-logo').src = item.logo || '';
+            document.getElementById('modal-name').textContent = item.nombreEmprendimiento || '';
+            document.getElementById('modal-description').textContent = item.descripcion || '';
+            document.getElementById('modal-representative').textContent = item.nombreRepresentante || '';
+            document.getElementById('modal-location').textContent = item.municipio || '';
+            document.getElementById('modal-email').textContent = item.email || '';
+            document.getElementById('modal-address').textContent = item.direccion || '';
             document.getElementById('modal-constituted').textContent = item.constituido || '';
-            const phone = (item.telefono || '').replace(/\D/g, ''); 
+            const phone = (item.telefono || '').replace(/\D/g, '');
             document.getElementById('modal-phone-container').innerHTML = `<strong>Teléfono de Contacto:</strong> <p>${item.telefono || 'N/A'}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
             document.getElementById('modal-products').innerHTML = (item.productos || []).map(p => `<span class="product-badge">${p}</span>`).join('');
-            const socials = document.getElementById('modal-socials'); socials.innerHTML = '';
+            const socials = document.getElementById('modal-socials');
+            socials.innerHTML = '';
             if (item.instagram) socials.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
             if (item.facebook) socials.innerHTML += `<a href="${item.facebook}" target="_blank" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg></a>`;
-            updateCarouselImage(); modal.classList.add('is-active');
+            updateCarouselImage();
+            modal.classList.add('is-active');
         };
+
         const updateCarouselImage = () => { if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250'; };
         const closeModal = () => modal.classList.remove('is-active');
         
@@ -513,7 +521,8 @@
                         emprendimientos = results.data.map(item => ({ 
                             ...item, 
                             productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [], 
-                            imagenes: item.imagenes ? item.imagenes.split(';').map(url => url.trim()) : [], 
+                            imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [], 
+                            logo: processImageUrl(item.logo)
                         }));
                         
                         populateFilters(); 
@@ -557,3 +566,4 @@
     </script>
 </body>
 </html>
+--- END OF FILE nuevo.html ---
