@@ -256,6 +256,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- ============================================================================= -->
+    <!-- INICIO DE LA MODIFICACIÓN: AÑADIR LIBRERÍA PAPA PARSE -->
+    <!-- ============================================================================= -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <!-- ============================================================================= -->
+    <!-- FIN DE LA MODIFICACIÓN -->
+    <!-- ============================================================================= -->
     <script>
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
 
@@ -327,7 +334,6 @@
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
             
-            // Esta función ahora se usa de manera selectiva, principalmente para la descripción en el PDF.
             const sanitizeText = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ').trim();
 
             try {
@@ -375,16 +381,8 @@
                 if (companyData.descripcion) {
                     startY = addSectionTitle("Descripción", startY);
                     
-                    // =============================================================================
-                    // INICIO DE LA CORRECCIÓN DEFINITIVA
-                    // Se vuelve a usar sanitizeText AQUÍ y SÓLO AQUÍ para la descripción.
-                    // Esto elimina los saltos de línea no deseados del CSV y crea un párrafo
-                    // limpio y justificado en el PDF.
-                    // =============================================================================
+                    // La descripción se sanea para eliminar saltos de línea y crear un párrafo limpio.
                     const descriptionLines = doc.splitTextToSize(sanitizeText(companyData.descripcion), pageWidth - (margin * 2));
-                    // =============================================================================
-                    // FIN DE LA CORRECCIÓN DEFINITIVA
-                    // =============================================================================
                     
                     doc.setFontSize(10); doc.setFont('helvetica', 'normal'); doc.text(descriptionLines, margin, startY);
                     startY += (descriptionLines.length * 5) + 10;
@@ -431,55 +429,6 @@
             }
         }
         
-        // La función parseCSV se mantiene robusta para leer correctamente los datos.
-        const parseCSV = (csvText) => {
-            const lines = [];
-            let currentLine = '';
-            let inQuotes = false;
-
-            for (const char of csvText.trim().replace(/\r\n/g, '\n')) {
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                }
-                if (char === '\n' && !inQuotes) {
-                    lines.push(currentLine);
-                    currentLine = '';
-                } else {
-                    currentLine += char;
-                }
-            }
-            lines.push(currentLine); 
-
-            if (lines.length < 2) return [];
-            const headers = lines.shift().split(',').map(h => h.trim().replace(/"/g, ''));
-            
-            return lines.map(line => {
-                const values = [];
-                let currentVal = '';
-                let inQuotesForRow = false;
-                
-                for (let char of line) {
-                    if (char === '"') {
-                        inQuotesForRow = !inQuotesForRow;
-                    } else if (char === ',' && !inQuotesForRow) {
-                        values.push(currentVal.trim().replace(/^"|"$/g, ''));
-                        currentVal = '';
-                    } else {
-                        currentVal += char;
-                    }
-                }
-                values.push(currentVal.trim().replace(/^"|"$/g, ''));
-                
-                const obj = {};
-                headers.forEach((header, index) => {
-                    if (header) {
-                        obj[header] = values[index] || '';
-                    }
-                });
-                return obj;
-            });
-        };
-
         const renderCards = (items) => {
             grid.innerHTML = '';
             if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos.</p>`; return; }
@@ -569,23 +518,44 @@
 
         const updateCarouselImage = () => { if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250'; };
         const closeModal = () => modal.classList.remove('is-active');
+        
         async function initializeApp() {
             try {
-                const response = await fetch(googleSheetURL); if (!response.ok) throw new Error('Network response was not ok');
-                const csvText = await response.text();
-                emprendimientos = parseCSV(csvText).map(item => ({
-                    ...item,
-                    productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
-                    imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
-                    logo: processImageUrl(item.logo)
-                }));
-                populateFilters(); 
-                renderCards(emprendimientos);
-                searchInput.addEventListener('input', applyFilters);
-                sectorFilter.addEventListener('change', handleSectorChange);
-                categoryFilter.addEventListener('change', applyFilters);
-                locationFilter.addEventListener('change', applyFilters);
-            } catch (error) { grid.innerHTML = `<p class="loading-message">Error al cargar los datos. Por favor, revisa la consola.</p>`; console.error('Error initializing app:', error); }
+                // =============================================================================
+                // INICIO DE LA MODIFICACIÓN: USAR PAPA PARSE
+                // =============================================================================
+                Papa.parse(googleSheetURL, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => {
+                        emprendimientos = results.data.map(item => ({
+                            ...item,
+                            productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [],
+                            imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [],
+                            logo: processImageUrl(item.logo)
+                        }));
+                        
+                        populateFilters(); 
+                        renderCards(emprendimientos);
+
+                        searchInput.addEventListener('input', applyFilters);
+                        sectorFilter.addEventListener('change', handleSectorChange);
+                        categoryFilter.addEventListener('change', applyFilters);
+                        locationFilter.addEventListener('change', applyFilters);
+                    },
+                    error: (error) => {
+                        grid.innerHTML = `<p class="loading-message">Error al cargar y procesar los datos. Revisa la consola.</p>`;
+                        console.error('Error con Papa Parse:', error);
+                    }
+                });
+                // =============================================================================
+                // FIN DE LA MODIFICACIÓN
+                // =============================================================================
+            } catch (error) { 
+                grid.innerHTML = `<p class="loading-message">Error al iniciar la carga de datos. Revisa la consola.</p>`; 
+                console.error('Error en initializeApp:', error); 
+            }
         }
 
         initializeApp();
