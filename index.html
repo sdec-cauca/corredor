@@ -283,6 +283,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
     <script>
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
 
@@ -303,7 +304,7 @@
         let currentImageIndex = 0;
 
         const normalizeText = (text) => text ? text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : '';
-        
+
         async function getBase64FromUrl(url) {
             if (!url) return null;
             const proxies = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
@@ -324,7 +325,6 @@
             console.error(`Todos los proxies fallaron para la imagen: ${url}`);
             return null;
         }
-
         function getRoundedImageBase64(base64, radius) {
             return new Promise((resolve) => {
                 if (!base64) return resolve(null);
@@ -339,72 +339,59 @@
                 img.onerror = () => resolve(null);
             });
         }
-
         async function downloadPDF() {
             if (!currentModalItem) return;
             const originalButtonContent = downloadPdfBtn.innerHTML;
             downloadPdfBtn.disabled = true;
             downloadPdfBtn.innerHTML = `<svg class="spinner" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:24px; height:24px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.75V6.25m0 11.5v1.5m7.4-7.4l-1.06-1.06M6.66 17.34l-1.06-1.06M20.25 12h-1.5M5.25 12h-1.5m13.54-5.34l-1.06 1.06M6.66 6.66l-1.06 1.06"></path></svg>`;
-            
-            // Función para limpiar solo los textos que lo necesiten (títulos, nombres, etc.)
-            const sanitizeForPDF = (text) => (text || '').replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, ' ').trim();
-
             try {
                 const { jsPDF } = window.jspdf; const doc = new jsPDF(); const companyData = currentModalItem;
                 const pageWidth = doc.internal.pageSize.getWidth(), pageHeight = doc.internal.pageSize.getHeight();
                 const margin = 14; const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
                 const logoBase64Raw = await getBase64FromUrl(companyData.logo);
                 const logoBase64Rounded = await getRoundedImageBase64(logoBase64Raw, 22);
-                
                 const addHeaderFooter = () => {
                     for (let i = 1; i <= doc.internal.getNumberOfPages(); i++) {
                         doc.setPage(i); doc.setFillColor(headerColor); doc.rect(0, 0, pageWidth, 25, 'F');
                         if (logoBase64Rounded) { const logoSize = 18; doc.addImage(logoBase64Rounded, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize); }
-                        doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: "${(sanitizeForPDF(companyData.nombreEmprendimiento) || '').toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
+                        doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: "${(companyData.nombreEmprendimiento || '').toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
                         doc.setFontSize(8); doc.setTextColor(primaryColor); doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' }); doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
                     }
                 };
-
                 let startY = 35; let sectionCounter = 1;
                 const addSectionTitle = (title, y) => {
                     if (y > pageHeight - 40) { doc.addPage(); y = 30; }
                     doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(`${sectionCounter}. ${title}`, margin, y); y += 4; doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y); sectionCounter++; return y + 8;
                 };
-
                 startY = addSectionTitle("Información de la Empresa", startY);
                 doc.autoTable({ startY, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido], ['Email:', companyData.email], ['Celular:', companyData.telefono]], theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold' } } });
                 startY = doc.previousAutoTable.finalY + 15;
-
+                
+                // ===================================================================
+                // INICIO DE LA CORRECCIÓN DEFINITIVA PARA EL PDF
+                // ===================================================================
                 if (companyData.descripcion) {
                     startY = addSectionTitle("Descripción", startY); 
                     doc.setFontSize(10); 
                     doc.setFont('helvetica', 'normal');
-                    
-                    // <<< ESTA ES LA LÍNEA CLAVE CORREGIDA >>>
-                    // Se pasa la descripción directamente del objeto de datos (leído por PapaParse)
-                    // a la librería jsPDF. La librería se encargará de ajustar el texto y
-                    // respetar los saltos de línea intencionados (párrafos).
+                    // Se pasa el texto de la descripción DIRECTAMENTE a la librería jsPDF,
+                    // sin ninguna limpieza previa. La librería se encarga de formatearlo.
                     const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
-                    
                     doc.text(descriptionLines, margin, startY); 
                     startY += (descriptionLines.length * 5) + 10;
                 }
-
-                if(companyData.productos && companyData.productos.length > 0) {
-                    startY = addSectionTitle("Productos / Servicios", startY); 
-                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } }); 
-                    startY = doc.previousAutoTable.finalY + 15;
-                }
+                // ===================================================================
+                // FIN DE LA CORRECCIÓN DEFINITIVA PARA EL PDF
+                // ===================================================================
                 
+                if(companyData.productos && companyData.productos.length > 0) {
+                    startY = addSectionTitle("Productos / Servicios", startY); doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } }); startY = doc.previousAutoTable.finalY + 15;
+                }
                 if (companyData.instagram || companyData.facebook) {
                     startY = addSectionTitle("Redes Sociales", startY);
-                    const socialData = []; 
-                    if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]); 
-                    if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
-                    doc.autoTable({ startY, head: [['Red Social', 'Enlace']], body: socialData, theme: 'grid', headStyles: { fillColor: primaryColor }, columnStyles: { 1: { textColor: [40, 90, 190] } }, didDrawCell: (data) => { if (data.section === 'body' && data.column.index === 1) { doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] }); } } }); 
-                    startY = doc.previousAutoTable.finalY + 15;
+                    const socialData = []; if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]); if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
+                    doc.autoTable({ startY, head: [['Red Social', 'Enlace']], body: socialData, theme: 'grid', headStyles: { fillColor: primaryColor }, columnStyles: { 1: { textColor: [40, 90, 190] } }, didDrawCell: (data) => { if (data.section === 'body' && data.column.index === 1) { doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] }); } } }); startY = doc.previousAutoTable.finalY + 15;
                 }
-
                 const imageUrls = (companyData.imagenes || []).filter(Boolean);
                 if (imageUrls.length > 0) {
                     const base64Images = (await Promise.all(imageUrls.map(getBase64FromUrl))).filter(Boolean);
@@ -419,16 +406,8 @@
                         }
                     }
                 }
-
-                addHeaderFooter(); 
-                doc.save(`Ficha_${sanitizeForPDF(companyData.nombreEmprendimiento).replace(/\s/g, '_')}.pdf`);
-            } catch (error) { 
-                console.error("Error al generar el PDF:", error); 
-                alert("Hubo un error al generar el PDF. Revisa la consola para más detalles."); 
-            } finally { 
-                downloadPdfBtn.disabled = false; 
-                downloadPdfBtn.innerHTML = originalButtonContent; 
-            }
+                addHeaderFooter(); doc.save(`Ficha_${(companyData.nombreEmprendimiento || '').replace(/\s/g, '_')}.pdf`);
+            } catch (error) { console.error("Error al generar el PDF:", error); alert("Hubo un error al generar el PDF. Revisa la consola para más detalles."); } finally { downloadPdfBtn.disabled = false; downloadPdfBtn.innerHTML = originalButtonContent; }
         }
         
         const renderCards = (items) => {
