@@ -486,6 +486,30 @@
                     download: true,
                     header: true,
                     skipEmptyLines: true,
+                    // ===== INICIO DE LA CORRECCIÓN =====
+                    // Esta función transforma los encabezados del CSV a un formato consistente (camelCase)
+                    // para que el código siempre los encuentre sin importar cómo estén escritos en la hoja de cálculo.
+                    transformHeader: (header) => {
+                        // 1. Quita acentos y caracteres especiales
+                        const normalized = header.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        // 2. Pone todo en minúsculas y quita caracteres no alfanuméricos
+                        const cleaned = normalized.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
+                        // 3. Convierte a formato camelCase (ej: "nombre del emprendimiento" -> "nombreDelEmprendimiento")
+                        const words = cleaned.split(' ').filter(Boolean);
+                        const key = words.shift() + words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+                        
+                        // Mapeo específico para asegurar nombres clave correctos
+                        const keyMap = {
+                            'nombredelEmprendimiento': 'nombreEmprendimiento',
+                            'nombreDelEmprendimiento': 'nombreEmprendimiento',
+                            'sectorPrimario': 'sectorPrimario',
+                            'categoría': 'categoria',
+                            'nombreDelRepresentanteLegal': 'nombreRepresentante'
+                        };
+                        
+                        return keyMap[key] || key;
+                    },
+                    // ===== FIN DE LA CORRECCIÓN =====
                     complete: (results) => {
                         emprendimientos = results.data.map(item => ({ 
                             ...item, 
