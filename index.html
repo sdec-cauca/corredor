@@ -500,11 +500,10 @@
                         
                         // Mapeo específico para asegurar nombres clave correctos
                         const keyMap = {
-                            'nombredelEmprendimiento': 'nombreEmprendimiento',
-                            'nombreDelEmprendimiento': 'nombreEmprendimiento',
+                            'nombreEmprendimiento': 'nombreEmprendimiento',
                             'sectorPrimario': 'sectorPrimario',
                             'categoría': 'categoria',
-                            'nombreDelRepresentanteLegal': 'nombreRepresentante'
+                            'nombreRepresentanteLegal': 'nombreRepresentante'
                         };
                         
                         return keyMap[key] || key;
