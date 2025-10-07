@@ -113,10 +113,10 @@
         
         .company-card { background-color: var(--color-bg-light); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; position: relative; }
         .company-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1); }
-        .card-banner { height: 180px; width: 100%; object-fit: cover; }
+        .card-banner { height: 180px; width: 100%; object-fit: cover; background-color: #374151; }
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
         .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
+        .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); background-color: #4b5563; }
         .company-name { font-size: 1.25rem; font-weight: 600; }
         .company-location { display: none; font-size: 0.9rem; color: #9ca3af; }
         .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
@@ -150,14 +150,14 @@
         .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .modal-carousel { position: relative; width: 100%; height: 250px; margin-bottom: 1.5rem; }
-        #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
+        #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); background-color: #374151; }
         .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
         .carousel-arrow:hover { background-color: rgba(0,0,0,0.8); }
         .carousel-arrow.prev { left: 1rem; }
         .carousel-arrow.next { right: 1rem; }
         .modal-main-content { padding: 0 1rem 1rem 1rem; }
         .modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); }
+        #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); background-color: #4b5563; }
         #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; }
         #download-pdf-btn { background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background-color 0.3s, transform 0.3s; display: flex; align-items: center; justify-content: center; }
         #download-pdf-btn:hover { background-color: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
@@ -420,15 +420,15 @@
                 const card = document.createElement('div');
                 card.className = 'company-card';
                 card.innerHTML = `
-                    <img src="${item.imagenes?.[0] || 'https://via.placeholder.com/300x180'}" alt="Banner" class="card-banner">
+                    <img src="${item.imagenes?.[0] || ''}" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x180';" alt="Banner" class="card-banner">
                     <div class="card-content">
                         <div class="card-header">
-                            <img src="${item.logo || 'https://via.placeholder.com/50'}" alt="Logo" class="company-logo">
-                            <h2 class="company-name">${item.nombreEmprendimiento}</h2>
+                            <img src="${item.logo || ''}" onerror="this.onerror=null;this.src='https://via.placeholder.com/50';" alt="Logo" class="company-logo">
+                            <h2 class="company-name">${item.nombreEmprendimiento || 'Nombre no disponible'}</h2>
                         </div>
                         <div class="card-product-badges">${(item.productos || []).slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
-                        <span class="company-category">${item.categoria}</span>
-                        <span class="company-location">${item.municipio}</span>
+                        <span class="company-category">${item.categoria || 'Sin categoría'}</span>
+                        <span class="company-location">${item.municipio || ''}</span>
                     </div>`;
                 card.addEventListener('click', () => openModal(item));
                 grid.appendChild(card);
@@ -461,14 +461,14 @@
         };
         const openModal = (item) => {
             currentModalItem = item; currentImageIndex = 0;
-            document.getElementById('modal-logo').src = item.logo || ''; 
-            document.getElementById('modal-name').textContent = item.nombreEmprendimiento || ''; 
-            document.getElementById('modal-description').textContent = item.descripcion || ''; 
-            document.getElementById('modal-representative').textContent = item.nombreRepresentante || ''; 
-            document.getElementById('modal-location').textContent = item.municipio || ''; 
-            document.getElementById('modal-email').textContent = item.email || ''; 
-            document.getElementById('modal-address').textContent = item.direccion || ''; 
-            document.getElementById('modal-constituted').textContent = item.constituido || '';
+            document.getElementById('modal-logo').src = item.logo || 'https://via.placeholder.com/60'; 
+            document.getElementById('modal-name').textContent = item.nombreEmprendimiento || 'Nombre no disponible'; 
+            document.getElementById('modal-description').textContent = item.descripcion || 'No hay descripción disponible.'; 
+            document.getElementById('modal-representative').textContent = item.nombreRepresentante || 'No disponible'; 
+            document.getElementById('modal-location').textContent = item.municipio || 'No disponible'; 
+            document.getElementById('modal-email').textContent = item.email || 'No disponible'; 
+            document.getElementById('modal-address').textContent = item.direccion || 'No disponible'; 
+            document.getElementById('modal-constituted').textContent = item.constituido || 'No disponible';
             const phone = (item.telefono || '').replace(/\D/g, ''); 
             document.getElementById('modal-phone-container').innerHTML = `<strong>Teléfono de Contacto:</strong> <p>${item.telefono || 'N/A'}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
             document.getElementById('modal-products').innerHTML = (item.productos || []).map(p => `<span class="product-badge">${p}</span>`).join('');
@@ -486,34 +486,37 @@
                     download: true,
                     header: true,
                     skipEmptyLines: true,
-                    // ===== INICIO DE LA CORRECCIÓN =====
-                    // Esta función transforma los encabezados del CSV a un formato consistente (camelCase)
-                    // para que el código siempre los encuentre sin importar cómo estén escritos en la hoja de cálculo.
+                    // ===== INICIO DE LA CORRECCIÓN MEJORADA =====
                     transformHeader: (header) => {
-                        // 1. Quita acentos y caracteres especiales
-                        const normalized = header.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                        // 2. Pone todo en minúsculas y quita caracteres no alfanuméricos
+                        // 1. Limpiar espacios en blanco y, crucialmente, los saltos de línea invisibles (\n o \r)
+                        const cleanHeader = header.trim().replace(/[\r\n]/gm, '');
+                        
+                        // 2. Quita acentos y caracteres especiales
+                        const normalized = cleanHeader.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                        
+                        // 3. Pone todo en minúsculas y quita caracteres no alfanuméricos
                         const cleaned = normalized.toLowerCase().replace(/[^a-zA-Z0-9 ]/g, '');
-                        // 3. Convierte a formato camelCase (ej: "nombre del emprendimiento" -> "nombreDelEmprendimiento")
+                        
+                        // 4. Convierte a formato camelCase (ej: "nombre del emprendimiento" -> "nombreDelEmprendimiento")
                         const words = cleaned.split(' ').filter(Boolean);
                         const key = words.shift() + words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
                         
-                        // Mapeo específico para asegurar nombres clave correctos
+                        // 5. Mapeo específico para asegurar nombres clave correctos
                         const keyMap = {
-                            'nombreEmprendimiento': 'nombreEmprendimiento',
-                            'sectorPrimario': 'sectorPrimario',
+                            'nombredelEmprendimiento': 'nombreEmprendimiento',
+                            'nombreDelEmprendimiento': 'nombreEmprendimiento',
                             'categoría': 'categoria',
-                            'nombreRepresentanteLegal': 'nombreRepresentante'
+                            'nombreDelRepresentanteLegal': 'nombreRepresentante'
                         };
                         
                         return keyMap[key] || key;
                     },
-                    // ===== FIN DE LA CORRECCIÓN =====
+                    // ===== FIN DE LA CORRECCIÓN MEJORADA =====
                     complete: (results) => {
                         emprendimientos = results.data.map(item => ({ 
                             ...item, 
-                            productos: item.productos ? item.productos.split(';').map(p => p.trim()) : [], 
-                            imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [], 
+                            productos: (item.productos || '').split(';').map(p => p.trim()).filter(Boolean), 
+                            imagenes: (item.imagenes || '').split(';').map(url => processImageUrl(url.trim())).filter(Boolean), 
                             logo: processImageUrl(item.logo)
                         }));
                         
