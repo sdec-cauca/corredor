@@ -420,10 +420,13 @@
                 const card = document.createElement('div');
                 card.className = 'company-card';
                 card.innerHTML = `
-                    <img loading="lazy" src="${item.imagenes?.[0] || 'https://placehold.co/300x180'}" alt="Banner" class="card-banner">
+                    <img loading="lazy" src="${item.imagenes?.[0] || 
+                    // 'https://placehold.co/300x180'
+                    'https://your-website.com/i/width-320/height-240'
+                    }" alt="Banner" class="card-banner">
                     <div class="card-content">
                         <div class="card-header">
-                            <img loading="lazy" src="${item.logo || 'https://placehold.co/50'}" alt="Logo" class="company-logo">
+                            <img loading="lazy" src="${item.logo || 'https://avatar.iran.liara.run/public/87'}" alt="Logo" class="company-logo">
                             <h2 class="company-name">${item.nombreEmprendimiento}</h2>
                         </div>
                         <div class="card-product-badges">${(item.productos || []).slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
