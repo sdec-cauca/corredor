@@ -230,14 +230,14 @@
     <div id="company-modal" class="modal">
         <div class="modal-content">
             <div class="modal-carousel">
-                <img id="modal-image" src="" alt="Imagen del emprendimiento">
+                <img loading="lazy" id="modal-image" src="" alt="Imagen del emprendimiento">
                 <button class="carousel-arrow prev" id="prevBtn">&lt;</button>
                 <button class="carousel-arrow next" id="nextBtn">&gt;</button>
             </div>
             <div class="modal-main-content">
                 <button id="modal-close-btn" class="modal-close">&times;</button>
                 <div class="modal-header">
-                    <img id="modal-logo" src="" alt="Logo del emprendimiento">
+                    <img loading="lazy" id="modal-logo" src="" alt="Logo del emprendimiento">
                     <h2 id="modal-name"></h2>
                     <button id="download-pdf-btn" title="Descargar Ficha">
                         <svg fill="currentColor" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
@@ -420,10 +420,10 @@
                 const card = document.createElement('div');
                 card.className = 'company-card';
                 card.innerHTML = `
-                    <img src="${item.imagenes?.[0] || 'https://via.placeholder.com/300x180'}" alt="Banner" class="card-banner">
+                    <img loading="lazy" src="${item.imagenes?.[0] || 'https://placehold.co/300x180'}" alt="Banner" class="card-banner">
                     <div class="card-content">
                         <div class="card-header">
-                            <img src="${item.logo || 'https://via.placeholder.com/50'}" alt="Logo" class="company-logo">
+                            <img loading="lazy" src="${item.logo || 'https://placehold.co/50'}" alt="Logo" class="company-logo">
                             <h2 class="company-name">${item.nombreEmprendimiento}</h2>
                         </div>
                         <div class="card-product-badges">${(item.productos || []).slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
