@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +7,41 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* --- DEFINICIÓN DE VARIABLES Y TEMAS --- */
         :root {
-            --color-bg: #111827;
-            --color-bg-light: #1f2937;
-            --color-text: #e5e7eb;
+            /* Variables Base (Modo Oscuro por defecto) */
+            --color-bg: #0f172a;
+            --color-bg-light: #1e293b;
+            --color-bg-card: #1e293b;
+            --color-text: #f1f5f9;
+            --color-text-muted: #94a3b8;
             --color-primary: #38bdf8;
-            --color-secondary: #a78bfa;
-            --color-glass: rgba(31, 41, 55, 0.6);
-            --border-radius: 12px;
+            --color-secondary: #818cf8;
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-glass: rgba(30, 41, 59, 0.7);
+            --color-glass-border: rgba(255, 255, 255, 0.1);
+            --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+            --border-radius: 16px;
+        }
+
+        /* Variables para Modo Claro */
+        [data-theme="light"] {
+            --color-bg: #f0f4f8;
+            --color-bg-light: #ffffff;
+            --color-bg-card: #ffffff;
+            --color-text: #1e293b;
+            --color-text-muted: #64748b;
+            --color-primary: #0284c7; /* Azul más oscuro para contraste en blanco */
+            --color-secondary: #6366f1;
+            --color-border: rgba(0, 0, 0, 0.1);
+            --color-glass: rgba(255, 255, 255, 0.85);
+            --color-glass-border: rgba(255, 255, 255, 0.5);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,6 +51,7 @@
             background-color: var(--color-bg);
             color: var(--color-text);
             overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         #three-canvas {
@@ -34,6 +59,8 @@
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: -1;
+            opacity: 0.8;
+            pointer-events: none;
         }
 
         .container {
@@ -45,159 +72,235 @@
             z-index: 1;
         }
 
-        .header { text-align: center; padding: 4rem 0; }
+        /* --- HEADER --- */
+        .header { text-align: center; padding: 4rem 0 3rem 0; }
         .header h1 {
-            font-size: 3rem;
-            font-weight: 600;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
+            drop-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .header p { font-size: 1.1rem; color: #9ca3af; }
+        .header p { font-size: 1.2rem; color: var(--color-text-muted); font-weight: 300; }
 
+        /* --- CONTROLS & FILTERS --- */
         .filters-container {
-            padding: 1.5rem;
+            padding: 1.25rem;
             background: var(--color-glass);
             border-radius: var(--border-radius);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--color-glass-border);
             display: flex;
             gap: 1rem;
             flex-wrap: wrap;
             margin-bottom: 3rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
             align-items: center; 
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
 
         .search-input, .filter-select {
             background-color: var(--color-bg-light);
             color: var(--color-text);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            border-radius: 10px;
             padding: 0.75rem 1rem;
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-family: 'Poppins', sans-serif;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         
-        .search-input { 
-            flex-grow: 1; 
-            min-width: 200px;
-            flex-basis: 100%;
-        }
-        .filter-select { 
-            flex-grow: 1;
-        }
+        .search-input { flex-grow: 2; min-width: 200px; }
+        .filter-select { flex-grow: 1; cursor: pointer; }
         
-        .search-input::placeholder { color: #9ca3af; }
-        .search-input:focus, .filter-select:focus { outline: none; border-color: var(--color-primary); }
-        .filter-select:disabled { background-color: #374151; color: #9ca3af; cursor: not-allowed; }
+        .search-input::placeholder { color: var(--color-text-muted); }
+        .search-input:focus, .filter-select:focus { 
+            outline: none; 
+            border-color: var(--color-primary); 
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); 
+        }
+        .filter-select:disabled { opacity: 0.6; cursor: not-allowed; background-color: rgba(0,0,0,0.05); }
 
         .view-controls { 
             display: flex; 
             gap: 0.5rem; 
-            flex-basis: 100%;
-            justify-content: flex-end;
+            align-items: center;
         }
         
-        .view-btn { background-color: var(--color-bg-light); border: 1px solid rgba(255, 255, 255, 0.2); color: var(--color-text); border-radius: 8px; padding: 0.5rem; cursor: pointer; transition: background-color 0.3s, border-color 0.3s; display: flex; align-items: center; justify-content: center; }
-        .view-btn svg { width: 24px; height: 24px; opacity: 0.7; }
-        .view-btn:hover { border-color: var(--color-primary); }
-        .view-btn.active { background-color: var(--color-primary); border-color: var(--color-primary); color: var(--color-bg); }
-        .view-btn.active svg { opacity: 1; }
-
-        .showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
-        .loading-message, .no-results { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; }
+        .control-btn { 
+            background-color: var(--color-bg-light); 
+            border: 1px solid var(--color-border); 
+            color: var(--color-text); 
+            border-radius: 10px; 
+            width: 42px; height: 42px;
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .control-btn svg { width: 20px; height: 20px; opacity: 0.7; transition: transform 0.2s; }
+        .control-btn:hover { border-color: var(--color-primary); color: var(--color-primary); transform: translateY(-2px); }
+        .control-btn.active { background-color: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+        .control-btn.active svg { opacity: 1; }
         
-        .company-card { background-color: var(--color-bg-light); border-radius: var(--border-radius); overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; position: relative; }
-        .company-card:hover { transform: translateY(-10px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1); }
-        .card-banner { height: 180px; width: 100%; object-fit: cover; }
-        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        /* Botón de Tema específico */
+        #theme-toggle svg { fill: none; stroke: currentColor; stroke-width: 2; }
+        #theme-toggle:hover svg { transform: rotate(15deg); }
+
+        /* --- GRID DE TARJETAS --- */
+        .showcase-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; padding-bottom: 2rem; }
+        .loading-message, .no-results { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; padding: 3rem; color: var(--color-text-muted); }
+        
+        .company-card { 
+            background-color: var(--color-bg-card); 
+            border-radius: var(--border-radius); 
+            overflow: hidden; 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            cursor: pointer; 
+            border: 1px solid var(--color-border); 
+            display: flex; flex-direction: column; 
+            position: relative; 
+            box-shadow: var(--shadow-card);
+        }
+        .company-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); border-color: var(--color-primary); }
+        
+        .card-banner { height: 180px; width: 100%; object-fit: cover; transition: transform 0.5s; }
+        .company-card:hover .card-banner { transform: scale(1.05); }
+        
+        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; background-color: var(--color-bg-card); position: relative; z-index: 1; }
         .card-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        .company-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-primary); }
-        .company-name { font-size: 1.25rem; font-weight: 600; }
-        .company-location { display: none; font-size: 0.9rem; color: #9ca3af; }
-        .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-        .card-product-badge { background-color: var(--color-bg); color: #d1d5db; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.75rem; }
-        .company-category { display: inline-block; background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)); color: #fff; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; margin-top: auto; align-self: flex-start; }
+        .company-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 3px solid var(--color-bg-card); box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: -3rem; background: var(--color-bg-card); z-index: 2; }
+        
+        .company-name { font-size: 1.25rem; font-weight: 600; color: var(--color-text); line-height: 1.3; margin-top: -0.5rem; }
+        .company-location { font-size: 0.85rem; color: var(--color-text-muted); display: flex; align-items: center; gap: 0.3rem; margin-top: 0.2rem;}
+        
+        .card-product-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; margin-top: 1rem; }
+        .card-product-badge { background-color: var(--color-bg); color: var(--color-text-muted); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 500; border: 1px solid var(--color-border); }
+        
+        .card-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .company-category { 
+            display: inline-block; 
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); 
+            color: #fff; 
+            padding: 0.3rem 0.9rem; 
+            border-radius: 99px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.2);
+        }
 
-        .showcase-grid.view-mosaic { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.2rem; }
-        .showcase-grid.view-mosaic .company-card { border-radius: 0; }
-        .showcase-grid.view-mosaic .company-card:hover { transform: none; box-shadow: none; z-index: 10; }
-        .showcase-grid.view-mosaic .card-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s ease; justify-content: center; align-items: center; text-align: center; padding: 1rem; }
+        /* Vistas Alternativas */
+        .showcase-grid.view-mosaic { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.5rem; }
+        .showcase-grid.view-mosaic .company-card { border-radius: 8px; border: none; }
+        .showcase-grid.view-mosaic .company-card:hover { transform: scale(1.02); z-index: 10; }
+        .showcase-grid.view-mosaic .card-content { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); /* Siempre oscuro para contraste de texto blanco */
+            opacity: 0; transition: opacity 0.3s ease; 
+            justify-content: center; align-items: center; text-align: center; padding: 1rem; 
+        }
         .showcase-grid.view-mosaic .company-card:hover .card-content { opacity: 1; }
-        .showcase-grid.view-mosaic .card-header,
-        .showcase-grid.view-mosaic .card-product-badges,
-        .showcase-grid.view-mosaic .company-category { display: none; }
-        .showcase-grid.view-mosaic .company-name { font-size: 1rem; }
+        .showcase-grid.view-mosaic .card-header, .showcase-grid.view-mosaic .card-product-badges, .showcase-grid.view-mosaic .card-footer, .showcase-grid.view-mosaic .company-logo { display: none; }
+        .showcase-grid.view-mosaic .company-name { color: #fff; font-size: 1.1rem; margin-top: 0; }
 
-        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 0.5rem; }
-        .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; min-height: auto; padding: 1rem 1.5rem; transition: background-color 0.3s; }
-        .showcase-grid.view-list .company-card:hover { transform: none; background-color: var(--color-bg); }
-        .showcase-grid.view-list .card-banner,
-        .showcase-grid.view-list .card-product-badges { display: none; }
-        .showcase-grid.view-list .card-content { flex-direction: row; justify-content: space-between; align-items: center; padding: 0; gap: 1.5rem; }
+        .showcase-grid.view-list { grid-template-columns: 1fr; gap: 1rem; }
+        .showcase-grid.view-list .company-card { flex-direction: row; align-items: center; padding: 1rem; }
+        .showcase-grid.view-list .company-card:hover { transform: translateX(5px); }
+        .showcase-grid.view-list .card-banner, .showcase-grid.view-list .card-product-badges { display: none; }
+        .showcase-grid.view-list .card-content { padding: 0 1rem; flex-direction: row; justify-content: space-between; align-items: center; gap: 2rem; background: transparent; }
+        .showcase-grid.view-list .company-logo { margin-top: 0; width: 50px; height: 50px; }
         .showcase-grid.view-list .card-header { margin-bottom: 0; flex-grow: 1; }
-        .showcase-grid.view-list .company-logo { width: 40px; height: 40px; }
-        .showcase-grid.view-list .company-name { font-size: 1.1rem; }
-        .showcase-grid.view-list .company-category { margin-top: 0; text-align: center; flex-shrink: 0; width: 150px; }
-        .showcase-grid.view-list .company-location { display: block; flex-shrink: 0; width: 150px; text-align: right; }
+        .showcase-grid.view-list .company-name { margin-top: 0; }
+        .showcase-grid.view-list .card-footer { margin-top: 0; width: auto; gap: 2rem; }
 
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
-        .modal.is-active { display: flex; }
-        .modal-content { background-color: var(--color-bg-light); padding: 1rem; border-radius: var(--border-radius); max-width: 650px; width: 100%; position: relative; animation: fadeIn 0.3s ease-in-out; border: 1px solid rgba(255, 255, 255, 0.1); max-height: 90vh; overflow-y: auto; }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.5); border: none; color: var(--color-text); font-size: 1.5rem; cursor: pointer; line-height: 1; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .modal-carousel { position: relative; width: 100%; height: 250px; margin-bottom: 1.5rem; }
-        #modal-image { width: 100%; height: 100%; object-fit: cover; border-radius: var(--border-radius); }
-        .carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0,0,0,0.5); color: white; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
-        .carousel-arrow:hover { background-color: rgba(0,0,0,0.8); }
+        /* --- MODAL --- */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .modal.is-active { display: flex; animation: fadeInModal 0.3s ease-out; }
+        .modal-content { 
+            background-color: var(--color-bg-light); 
+            padding: 0; 
+            border-radius: var(--border-radius); 
+            max-width: 700px; width: 100%; 
+            position: relative; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
+            max-height: 90vh; overflow-y: auto; 
+            border: 1px solid var(--color-border);
+        }
+        
+        .modal-carousel { position: relative; width: 100%; height: 300px; background-color: var(--color-bg); }
+        #modal-image { width: 100%; height: 100%; object-fit: cover; }
+        .carousel-arrow { 
+            position: absolute; top: 50%; transform: translateY(-50%); 
+            background-color: rgba(0,0,0,0.5); color: white; border: none; 
+            cursor: pointer; width: 44px; height: 44px; border-radius: 50%; 
+            font-size: 1.5rem; display: flex; align-items: center; justify-content: center; 
+            transition: all 0.2s; backdrop-filter: blur(4px);
+        }
+        .carousel-arrow:hover { background-color: var(--color-primary); }
         .carousel-arrow.prev { left: 1rem; }
         .carousel-arrow.next { right: 1rem; }
-        .modal-main-content { padding: 0 1rem 1rem 1rem; }
-        .modal-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-        #modal-logo { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--color-primary); }
-        #modal-name { font-size: 1.8rem; font-weight: 600; flex-grow: 1; }
-        #download-pdf-btn { background: none; border: none; color: var(--color-primary); cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background-color 0.3s, transform 0.3s; display: flex; align-items: center; justify-content: center; }
-        #download-pdf-btn:hover { background-color: rgba(56, 189, 248, 0.1); transform: scale(1.1); }
-        #download-pdf-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; background-color: transparent; }
-        #download-pdf-btn svg { width: 24px; height: 24px; display: block; }
+        
+        .modal-close-container { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
+        .modal-close { 
+            background: rgba(0,0,0,0.3); border: none; color: #fff; 
+            width: 36px; height: 36px; border-radius: 50%; 
+            font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            transition: background 0.2s; 
+        }
+        .modal-close:hover { background: #ef4444; }
+
+        .modal-main-content { padding: 2rem; }
+        
+        .modal-header { display: flex; align-items: flex-end; gap: 1.5rem; margin-bottom: 1.5rem; margin-top: -4rem; position: relative; z-index: 5; }
+        #modal-logo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--color-bg-light); background: var(--color-bg-light); object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .modal-title-group { flex-grow: 1; margin-bottom: 0.5rem; }
+        #modal-name { font-size: 2rem; font-weight: 700; color: var(--color-text); line-height: 1.1; }
+        
+        #download-pdf-btn { 
+            background-color: var(--color-bg); color: var(--color-primary); 
+            border: 1px solid var(--color-border);
+            cursor: pointer; padding: 0.6rem; border-radius: 50%; 
+            transition: all 0.3s; display: flex; align-items: center; justify-content: center; 
+            margin-bottom: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #download-pdf-btn:hover { background-color: var(--color-primary); color: #fff; transform: translateY(-3px); }
+        
+        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .product-badge { background-color: var(--color-bg); color: var(--color-text); padding: 0.35rem 0.9rem; border-radius: 99px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--color-border); }
+        
+        #modal-description { color: var(--color-text-muted); margin-bottom: 2rem; line-height: 1.7; font-size: 1rem; }
+        
+        .modal-grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; background-color: var(--color-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--color-border); }
+        .info-item label { color: var(--color-primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; display: block; margin-bottom: 0.3rem; }
+        .info-item p { color: var(--color-text); font-weight: 500; }
+        
+        .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; vertical-align: middle; }
+        .whatsapp-link:hover { transform: scale(1.15); }
+        
+        #modal-socials { margin-top: 1.5rem; display: flex; gap: 1.5rem; justify-content: center; padding-top: 1.5rem; border-top: 1px solid var(--color-border); }
+        .social-link { color: var(--color-text-muted); transition: all 0.3s; padding: 0.5rem; border-radius: 12px; background-color: var(--color-bg); }
+        .social-link:hover { color: var(--color-primary); transform: translateY(-3px); background-color: rgba(56, 189, 248, 0.1); }
+        .social-link svg { width: 28px; height: 28px; display: block; }
+
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
-        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-        .product-badge { background-color: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 999px; font-size: 0.8rem; font-weight: 300; }
-        #modal-description { color: #d1d5db; margin-bottom: 2rem; line-height: 1.6; }
-        .modal-body { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-        .modal-body p { margin-bottom: 0.5rem; color: var(--color-text); }
-        .modal-body strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; font-weight: 400; font-size: 0.9rem; }
-        .whatsapp-link { display: inline-flex; align-items: center; margin-left: 0.5rem; color: #25D366; transition: transform 0.2s; }
-        .whatsapp-link:hover { transform: scale(1.1); }
-        .whatsapp-link svg { width: 20px; height: 20px; }
-        #modal-socials { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; gap: 1.5rem; align-items: center; }
-        .social-link { color: #9ca3af; text-decoration: none; transition: color 0.2s; }
-        .social-link:hover { color: var(--color-primary); }
-        .social-link svg { width: 24px; height: 24px; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
         @media (max-width: 640px) { 
             .header h1 { font-size: 2.2rem; } 
-            .filters-container { flex-direction: column; align-items: stretch; } 
-            .view-controls { width: 100%; justify-content: center; } 
-            .modal-body { grid-template-columns: 1fr; } 
-            #modal-name { font-size: 1.5rem; } 
-            .modal-content { padding: 0.5rem; } 
-            .modal-main-content { padding: 0 0.5rem 0.5rem 0.5rem; }
-            .showcase-grid.view-list .card-content { flex-wrap: wrap; }
-            .showcase-grid.view-list .card-header { flex-basis: 100%; }
-            .showcase-grid.view-list .company-category,
-            .showcase-grid.view-list .company-location { width: auto; flex-grow: 1; text-align: left;}
-        }
-
-        @media (max-width: 480px) {
-            .search-input, .filter-select {
-                min-width: 0;
-            }
+            .filters-container { flex-direction: column; align-items: stretch; gap: 0.8rem; }
+            .search-input { width: 100%; } 
+            .view-controls { width: 100%; justify-content: space-between; margin-top: 0.5rem; } 
+            .modal-grid-info { grid-template-columns: 1fr; } 
+            #modal-name { font-size: 1.6rem; } 
+            .modal-header { flex-direction: column; align-items: center; text-align: center; margin-top: -3rem; }
+            #modal-logo { margin-bottom: 0.5rem; }
+            .showcase-grid.view-list .card-content { flex-wrap: wrap; gap: 1rem; }
+            .showcase-grid.view-list .card-footer { width: 100%; }
         }
     </style>
 </head>
@@ -207,52 +310,67 @@
 
     <div class="container">
         <header class="header">
-            <h1>Vitrina de Emprendimientos</h1>
+            <h1>Vitrina Digital</h1>
             <p>Conectando ideas, impulsando el futuro.</p>
         </header>
 
         <div class="filters-container">
-            <input type="text" id="searchInput" class="search-input" placeholder="Buscar en toda la vitrina...">
+            <input type="text" id="searchInput" class="search-input" placeholder="¿Qué estás buscando hoy?">
             <select id="sectorFilter" class="filter-select"> <option value="todos">Todos los Sectores</option> </select>
-            <select id="categoryFilter" class="filter-select" disabled> <option value="todos">Seleccione un sector</option> </select>
+            <select id="categoryFilter" class="filter-select" disabled> <option value="todos">Seleccione sector...</option> </select>
             <select id="locationFilter" class="filter-select"> <option value="todos">Todas las Ubicaciones</option> </select>
             
             <div class="view-controls">
-                <button id="view-card-btn" class="view-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
-                <button id="view-mosaic-btn" class="view-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
-                <button id="view-list-btn" class="view-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
+                <button id="view-card-btn" class="control-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
+                <button id="view-mosaic-btn" class="control-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
+                <button id="view-list-btn" class="control-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
+                
+                <!-- Botón de Modo Claro / Oscuro -->
+                <button id="theme-toggle" class="control-btn" title="Cambiar Tema">
+                    <!-- Icono Sol (para cuando está oscuro) -->
+                    <svg id="icon-sun" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                    <!-- Icono Luna (para cuando está claro) -->
+                    <svg id="icon-moon" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                </button>
             </div>
         </div>
 
-        <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Cargando emprendimientos...</p> </main>
+        <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Descubriendo talento local...</p> </main>
     </div>
 
     <div id="company-modal" class="modal">
         <div class="modal-content">
+            <div class="modal-close-container">
+                <button id="modal-close-btn" class="modal-close">&times;</button>
+            </div>
             <div class="modal-carousel">
                 <img loading="lazy" id="modal-image" src="" alt="Imagen del emprendimiento">
                 <button class="carousel-arrow prev" id="prevBtn">&lt;</button>
                 <button class="carousel-arrow next" id="nextBtn">&gt;</button>
             </div>
             <div class="modal-main-content">
-                <button id="modal-close-btn" class="modal-close">&times;</button>
                 <div class="modal-header">
-                    <img loading="lazy" id="modal-logo" src="" alt="Logo del emprendimiento">
-                    <h2 id="modal-name"></h2>
-                    <button id="download-pdf-btn" title="Descargar Ficha">
-                        <svg fill="currentColor" viewBox="0 0 20 20"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
+                    <img loading="lazy" id="modal-logo" src="" alt="Logo">
+                    <div class="modal-title-group">
+                        <h2 id="modal-name"></h2>
+                        <div id="modal-products" class="product-badges"></div>
+                    </div>
+                    <button id="download-pdf-btn" title="Descargar Ficha PDF">
+                        <svg fill="currentColor" viewBox="0 0 20 20" style="width:24px;height:24px"><path d="M13 8V2H7v6H2l8 8 8-8h-5zM0 18h20v2H0v-2z"/></svg>
                     </button>
                 </div>
-                <div id="modal-products" class="product-badges"></div>
+                
                 <p id="modal-description"></p>
-                <div class="modal-body">
-                    <div><strong>Representante Legal:</strong><p id="modal-representative"></p></div>
-                    <div id="modal-phone-container"><strong>Teléfono de Contacto:</strong></div>
-                    <div><strong>Ubicación:</strong><p id="modal-location"></p></div>
-                    <div><strong>Correo Electrónico:</strong><p id="modal-email"></p></div>
-                    <div><strong>Dirección:</strong><p id="modal-address"></p></div>
-                    <div><strong>Constituido Legalmente:</strong><p id="modal-constituted"></p></div>
+                
+                <div class="modal-grid-info">
+                    <div class="info-item"><label>Representante</label><p id="modal-representative"></p></div>
+                    <div class="info-item" id="modal-phone-container"><label>Contacto</label></div>
+                    <div class="info-item"><label>Ubicación</label><p id="modal-location"></p></div>
+                    <div class="info-item"><label>Email</label><p id="modal-email"></p></div>
+                    <div class="info-item"><label>Dirección</label><p id="modal-address"></p></div>
+                    <div class="info-item"><label>Constituido</label><p id="modal-constituted"></p></div>
                 </div>
+                
                 <div id="modal-socials"></div>
             </div>
         </div>
@@ -264,6 +382,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script>
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
+
+    // Variable global para controlar partículas ThreeJS
+    let threeParticleMaterial;
 
     document.addEventListener('DOMContentLoaded', () => {
         let emprendimientos = [];
@@ -278,6 +399,40 @@
         const nextBtn = document.getElementById('nextBtn');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const iconSun = document.getElementById('icon-sun');
+        const iconMoon = document.getElementById('icon-moon');
+        const htmlElement = document.documentElement;
+
+        const updateThemeUI = (theme) => {
+            if (theme === 'light') {
+                htmlElement.setAttribute('data-theme', 'light');
+                iconSun.style.display = 'none';
+                iconMoon.style.display = 'block';
+                // Partículas más oscuras para fondo claro
+                if (threeParticleMaterial) threeParticleMaterial.color.setHex(0x0284c7); 
+            } else {
+                htmlElement.setAttribute('data-theme', 'dark');
+                iconSun.style.display = 'block';
+                iconMoon.style.display = 'none';
+                // Partículas claras para fondo oscuro
+                if (threeParticleMaterial) threeParticleMaterial.color.setHex(0x38bdf8);
+            }
+        };
+
+        // Check saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        updateThemeUI(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', newTheme);
+            updateThemeUI(newTheme);
+        });
+
+        // App Logic
         let currentModalItem = null;
         let currentImageIndex = 0;
 
@@ -311,10 +466,7 @@
                     reader.onerror = reject;
                     reader.readAsDataURL(blob);
                 });
-            } catch (error) { 
-                console.error(`Fallo al obtener la imagen para el PDF: ${url}`, error);
-                return null;
-            }
+            } catch (error) { return null; }
         }
         
         function getRoundedImageBase64(base64, radius) {
@@ -340,7 +492,7 @@
             try {
                 const { jsPDF } = window.jspdf; const doc = new jsPDF(); const companyData = currentModalItem;
                 const pageWidth = doc.internal.pageSize.getWidth(), pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 14; const primaryColor = '#2c3e50', textColor = '#0f0f0f', headerColor = '#1a252f';
+                const margin = 14; const primaryColor = '#0284c7', textColor = '#334155', headerColor = '#0f172a';
                 const logoBase64Raw = await getBase64FromUrl(companyData.logo);
                 const logoBase64Rounded = await getRoundedImageBase64(logoBase64Raw, 22);
                 
@@ -349,41 +501,42 @@
                         doc.setPage(i); doc.setFillColor(headerColor); doc.rect(0, 0, pageWidth, 25, 'F');
                         if (logoBase64Rounded) { const logoSize = 18; doc.addImage(logoBase64Rounded, 'JPEG', margin, (25 - logoSize) / 2, logoSize, logoSize); }
                         doc.setFontSize(11); doc.setTextColor('#FFFFFF'); doc.setFont('helvetica', 'bold'); doc.text(`FICHA DE EMPRESA: "${(companyData.nombreEmprendimiento || '').toUpperCase()}"`, pageWidth / 2, 15, { align: 'center' });
-                        doc.setFontSize(8); doc.setTextColor(primaryColor); doc.text(`Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' }); doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+                        doc.setFontSize(8); doc.setTextColor(primaryColor); doc.text(`Generado desde Vitrina Digital - Página ${i} de ${doc.internal.getNumberOfPages()}`, pageWidth / 2, pageHeight - 10, { align: 'center' }); doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
                     }
                 };
 
                 let startY = 35; let sectionCounter = 1;
                 const addSectionTitle = (title, y) => {
                     if (y > pageHeight - 40) { doc.addPage(); y = 30; }
-                    doc.setFontSize(16); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(`${sectionCounter}. ${title}`, margin, y); y += 4; doc.setDrawColor(primaryColor); doc.line(margin, y, pageWidth - margin, y); sectionCounter++; return y + 8;
+                    doc.setFontSize(14); doc.setFont('helvetica', 'bold'); doc.setTextColor(primaryColor); doc.text(`${sectionCounter}. ${title}`, margin, y); y += 3; doc.setDrawColor(200, 200, 200); doc.line(margin, y, pageWidth - margin, y); sectionCounter++; return y + 8;
                 };
 
-                startY = addSectionTitle("Información de la Empresa", startY);
-                doc.autoTable({ startY, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido], ['Email:', companyData.email], ['Celular:', companyData.telefono]], theme: 'plain', styles: { fontSize: 10, textColor, cellPadding: 1.5 }, columnStyles: { 0: { fontStyle: 'bold' } } });
+                startY = addSectionTitle("Información General", startY);
+                doc.autoTable({ startY, body: [['Nombre:', companyData.nombreEmprendimiento], ['Categoría:', companyData.categoria],['Ubicación:', companyData.municipio], ['Representante:', companyData.nombreRepresentante], ['Dirección:', companyData.direccion], ['Constituido:', companyData.constituido], ['Email:', companyData.email], ['Celular:', companyData.telefono]], theme: 'grid', styles: { fontSize: 10, textColor, cellPadding: 2, lineColor: [230, 230, 230] }, columnStyles: { 0: { fontStyle: 'bold', fillColor: [248, 250, 252], cellWidth: 40 } } });
                 startY = doc.previousAutoTable.finalY + 15;
 
                 if (companyData.descripcion) {
-                    startY = addSectionTitle("Descripción", startY); 
+                    startY = addSectionTitle("Sobre Nosotros", startY); 
                     doc.setFontSize(10); 
                     doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(textColor);
                     const descriptionLines = doc.splitTextToSize(companyData.descripcion, pageWidth - (margin * 2));
                     doc.text(descriptionLines, margin, startY); 
                     startY += (descriptionLines.length * 5) + 10;
                 }
 
                 if(companyData.productos && companyData.productos.length > 0) {
-                    startY = addSectionTitle("Productos / Servicios", startY); 
-                    doc.autoTable({ startY, head: [['#', 'Nombre']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'grid', headStyles: { fillColor: primaryColor } }); 
+                    startY = addSectionTitle("Nuestros Productos", startY); 
+                    doc.autoTable({ startY, head: [['#', 'Producto / Servicio']], body: companyData.productos.map((p, i) => [i + 1, p]), theme: 'striped', headStyles: { fillColor: primaryColor } }); 
                     startY = doc.previousAutoTable.finalY + 15;
                 }
                 
                 if (companyData.instagram || companyData.facebook) {
-                    startY = addSectionTitle("Redes Sociales", startY);
+                    startY = addSectionTitle("Encuéntranos en Redes", startY);
                     const socialData = []; 
                     if (companyData.instagram) socialData.push(['Instagram', companyData.instagram]); 
                     if (companyData.facebook) socialData.push(['Facebook', companyData.facebook]);
-                    doc.autoTable({ startY, head: [['Red Social', 'Enlace']], body: socialData, theme: 'grid', headStyles: { fillColor: primaryColor }, columnStyles: { 1: { textColor: [40, 90, 190] } }, didDrawCell: (data) => { if (data.section === 'body' && data.column.index === 1) { doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] }); } } }); 
+                    doc.autoTable({ startY, head: [['Red Social', 'Enlace']], body: socialData, theme: 'plain', columnStyles: { 1: { textColor: [2, 132, 199], fontStyle: 'italic' } }, didDrawCell: (data) => { if (data.section === 'body' && data.column.index === 1) { doc.link(data.cell.x, data.cell.y, data.cell.width, data.cell.height, { url: data.cell.text[0] }); } } }); 
                     startY = doc.previousAutoTable.finalY + 15;
                 }
 
@@ -391,7 +544,7 @@
                 if (imageUrls.length > 0) {
                     const base64Images = (await Promise.all(imageUrls.map(getBase64FromUrl))).filter(Boolean);
                     if(base64Images.length > 0) {
-                        startY = addSectionTitle("Galería de Imágenes", startY);
+                        startY = addSectionTitle("Galería", startY);
                         const imgPerRow=2, pad=5, availW=pageWidth-(margin*2)-(pad*(imgPerRow-1)), imgW=availW/imgPerRow, imgH=imgW*(9/16); let currentX = margin;
                         for(const imgBase64 of base64Images) {
                             if (startY + imgH > pageHeight - 20) { doc.addPage(); startY = 30; }
@@ -403,10 +556,10 @@
                 }
 
                 addHeaderFooter(); 
-                doc.save(`Ficha_${(companyData.nombreEmprendimiento || '').replace(/\s/g, '_')}.pdf`);
+                doc.save(`Ficha_${(companyData.nombreEmprendimiento || '').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`);
             } catch (error) { 
-                console.error("Error al generar el PDF:", error); 
-                alert("Hubo un error al generar el PDF. Revisa la consola para más detalles."); 
+                console.error("Error PDF:", error); 
+                alert("Hubo un error al generar el PDF."); 
             } finally { 
                 downloadPdfBtn.disabled = false; 
                 downloadPdfBtn.innerHTML = originalButtonContent; 
@@ -415,20 +568,26 @@
         
         const renderCards = (items) => {
             grid.innerHTML = '';
-            if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos.</p>`; return; }
-            items.forEach((item) => {
+            if (items.length === 0) { grid.innerHTML = `<p class="no-results">No se encontraron emprendimientos que coincidan con tu búsqueda.</p>`; return; }
+            items.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = 'company-card';
+                card.style.animation = `fadeInModal 0.5s ease-out forwards ${index * 0.05}s`; // Staggered animation
+                card.style.opacity = '0'; // Start hidden for animation
                 card.innerHTML = `
-                    <img loading="lazy" src="${item.imagenes?.[0] || 'https://placehold.co/300x180'}" alt="Banner" class="card-banner">
+                    <img loading="lazy" src="${item.imagenes?.[0] || 'https://placehold.co/600x400/1e293b/FFF?text=Sin+Imagen'}" alt="Banner" class="card-banner">
                     <div class="card-content">
+                        <img loading="lazy" src="${item.logo || 'https://ui-avatars.com/api/?name=' + item.nombreEmprendimiento + '&background=random'}" alt="Logo" class="company-logo">
                         <div class="card-header">
-                            <img loading="lazy" src="${item.logo || 'https://avatar.iran.liara.run/public/87'}" alt="Logo" class="company-logo">
-                            <h2 class="company-name">${item.nombreEmprendimiento}</h2>
+                            <div>
+                                <h2 class="company-name">${item.nombreEmprendimiento}</h2>
+                                <span class="company-location"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>${item.municipio}</span>
+                            </div>
                         </div>
                         <div class="card-product-badges">${(item.productos || []).slice(0, 3).map(p => `<span class="card-product-badge">${p}</span>`).join('')}</div>
-                        <span class="company-category">${item.categoria}</span>
-                        <span class="company-location">${item.municipio}</span>
+                        <div class="card-footer">
+                            <span class="company-category">${item.categoria}</span>
+                        </div>
                     </div>`;
                 card.addEventListener('click', () => openModal(item));
                 grid.appendChild(card);
@@ -440,7 +599,7 @@
             const locations = [...new Set(emprendimientos.map(item => item.municipio))].filter(Boolean); locations.sort().forEach(l => locationFilter.innerHTML += `<option value="${l}">${l}</option>`);
         };
         const handleSectorChange = () => {
-            const selectedSector = sectorFilter.value; categoryFilter.innerHTML = '<option value="todos">Seleccione un sector</option>';
+            const selectedSector = sectorFilter.value; categoryFilter.innerHTML = '<option value="todos">Seleccione sector...</option>';
             if (selectedSector === 'todos') { categoryFilter.disabled = true; } else {
                 categoryFilter.disabled = false; categoryFilter.innerHTML = '<option value="todos">Todas las Categorías</option>';
                 const categories = [...new Set(emprendimientos.filter(i => i.sectorPrimario === selectedSector).map(i => i.categoria))].filter(Boolean);
@@ -461,31 +620,35 @@
         };
         const openModal = (item) => {
             currentModalItem = item; currentImageIndex = 0;
-            document.getElementById('modal-logo').src = item.logo || ''; 
+            document.getElementById('modal-logo').src = item.logo || 'https://ui-avatars.com/api/?name=' + item.nombreEmprendimiento; 
             document.getElementById('modal-name').textContent = item.nombreEmprendimiento || ''; 
-            document.getElementById('modal-description').textContent = item.descripcion || ''; 
-            document.getElementById('modal-representative').textContent = item.nombreRepresentante || ''; 
-            document.getElementById('modal-location').textContent = item.municipio || ''; 
-            document.getElementById('modal-email').textContent = item.email || ''; 
-            document.getElementById('modal-address').textContent = item.direccion || ''; 
-            document.getElementById('modal-constituted').textContent = item.constituido || '';
+            document.getElementById('modal-description').textContent = item.descripcion || 'Sin descripción disponible.'; 
+            document.getElementById('modal-representative').textContent = item.nombreRepresentante || 'No especificado'; 
+            document.getElementById('modal-location').textContent = item.municipio || 'No especificado'; 
+            document.getElementById('modal-email').textContent = item.email || 'No disponible'; 
+            document.getElementById('modal-address').textContent = item.direccion || 'No especificada'; 
+            document.getElementById('modal-constituted').textContent = item.constituido || 'No';
             const phone = (item.telefono || '').replace(/\D/g, ''); 
-            document.getElementById('modal-phone-container').innerHTML = `<strong>Teléfono de Contacto:</strong> <p>${item.telefono || 'N/A'}</p>${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}`;
+            document.getElementById('modal-phone-container').innerHTML = `<label>Contacto</label><p style="display:inline-flex; align-items:center;">${item.telefono || 'N/A'}${phone ? `<a href="https://wa.me/${phone}" target="_blank" class="whatsapp-link" title="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px"><path d="M16.75 13.96c.25.13.43.2.5.25.13.06.16.25.13.38-.03.12-.25.43-.5.74-.25.32-1.25 1.22-1.63 1.28-.38.06-1 .16-1.74-.15-.74-.32-2.12-1.25-3.06-2.62-.94-1.38-1.22-2.13-1.09-2.25s.38-.19.5-.25c.13-.06.25-.03.38.09.12.13.25.44.31.5.06.07.1.13.03.25-.06.13-.16.25-.22.31-.06.07-.13.1-.06.22.25.38 1.12 1.5 1.22 1.62.09.13.2.16.28.13.09-.03.25-.13.34-.22.09-.09.22-.25.34-.38.13-.12.25-.09.41.03zm-4.81-11.13c-4.37 0-7.94 3.56-7.94 7.94 0 1.52.44 2.94 1.22 4.13l-1.28 4.69 4.81-1.25c1.16.75 2.53 1.19 4 1.19h.03c4.37 0 7.94-3.56 7.94-7.94s-3.56-7.94-7.94-7.94zM11.97 21.5c-1.4 0-2.75-.38-3.94-1.06l-.28-.16-2.94.77.78-2.88-.19-.29c-.74-1.16-1.19-2.56-1.19-4.06 0-5.25 4.25-9.5 9.5-9.5s9.5 4.25 9.5 9.5-4.25 9.5-9.5 9.5z"/></svg></a>` : ''}</p>`;
             document.getElementById('modal-products').innerHTML = (item.productos || []).map(p => `<span class="product-badge">${p}</span>`).join('');
             const socials = document.getElementById('modal-socials'); socials.innerHTML = '';
             if (item.instagram) socials.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
             if (item.facebook) socials.innerHTML += `<a href="${item.facebook}" target="_blank" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg></a>`;
-            updateCarouselImage(); modal.classList.add('is-active');
+            updateCarouselImage(); 
+            modal.style.display = 'flex'; // Force display flex before class for animation
+            setTimeout(() => modal.classList.add('is-active'), 10);
+            document.body.style.overflow = 'hidden';
         };
-        const updateCarouselImage = () => { if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://via.placeholder.com/650x250'; };
-        const closeModal = () => modal.classList.remove('is-active');
+        const updateCarouselImage = () => { if (currentModalItem) document.getElementById('modal-image').src = (currentModalItem.imagenes || [])[currentImageIndex] || 'https://placehold.co/600x400/1e293b/FFF?text=Sin+Imagen'; };
+        const closeModal = () => { 
+            modal.classList.remove('is-active'); 
+            setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = ''; }, 300);
+        };
         
         async function initializeApp() {
             try {
                 Papa.parse(googleSheetURL, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
+                    download: true, header: true, skipEmptyLines: true,
                     complete: (results) => {
                         emprendimientos = results.data.map(item => ({ 
                             ...item, 
@@ -493,7 +656,6 @@
                             imagenes: item.imagenes ? item.imagenes.split(';').map(url => processImageUrl(url.trim())) : [], 
                             logo: processImageUrl(item.logo)
                         }));
-                        
                         populateFilters(); 
                         renderCards(emprendimientos.sort(() => .5 - Math.random()));
                         
@@ -502,15 +664,9 @@
                         categoryFilter.addEventListener('change', applyFilters); 
                         locationFilter.addEventListener('change', applyFilters);
                     },
-                    error: (error) => {
-                        grid.innerHTML = `<p class="loading-message">Error al cargar y procesar los datos.</p>`;
-                        console.error('Error con Papa Parse:', error);
-                    }
+                    error: (error) => { grid.innerHTML = `<p class="loading-message">Hubo un problema cargando los datos. Intente más tarde.</p>`; }
                 });
-            } catch (error) { 
-                grid.innerHTML = `<p class="loading-message">Error al iniciar la carga de datos.</p>`; 
-                console.error('Error en initializeApp:', error); 
-            }
+            } catch (error) { grid.innerHTML = `<p class="loading-message">Error de conexión.</p>`; }
         }
 
         initializeApp();
@@ -520,9 +676,10 @@
         nextBtn.addEventListener('click', () => { if (currentModalItem) { currentImageIndex = (currentImageIndex + 1) % ((currentModalItem.imagenes || []).length || 1); updateCarouselImage(); } });
         downloadPdfBtn.addEventListener('click', downloadPDF);
         
-        document.querySelectorAll('.view-btn').forEach(button => {
+        document.querySelectorAll('.view-controls .control-btn').forEach(button => {
+            if(button.id === 'theme-toggle') return;
             button.addEventListener('click', () => {
-                document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active')); 
+                document.querySelectorAll('.view-controls .control-btn').forEach(btn => { if(btn.id !== 'theme-toggle') btn.classList.remove('active'); }); 
                 button.classList.add('active');
                 grid.className = 'showcase-grid';
                 if (button.id === 'view-mosaic-btn') grid.classList.add('view-mosaic');
@@ -531,7 +688,51 @@
         });
     });
     
-    (() => { const canvas = document.getElementById('three-canvas'); if (!canvas) return; const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true }); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); const particlesGeometry = new THREE.BufferGeometry; const count = 5000; const positions = new Float32Array(count * 3); for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 10; } particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); const particlesMaterial = new THREE.PointsMaterial({ size: 0.005, sizeAttenuation: true, color: new THREE.Color('#38bdf8') }); const particles = new THREE.Points(particlesGeometry, particlesMaterial); scene.add(particles); camera.position.z = 5; const clock = new THREE.Clock(); const animate = () => { const elapsedTime = clock.getElapsedTime(); particles.rotation.y = elapsedTime * 0.05; particles.rotation.x = elapsedTime * 0.05; renderer.render(scene, camera); window.requestAnimationFrame(animate); }; animate(); window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); }); })();
+    // Three.js Background with Theme Reactivity
+    (() => { 
+        const canvas = document.getElementById('three-canvas'); 
+        if (!canvas) return; 
+        const scene = new THREE.Scene(); 
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); 
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true }); 
+        renderer.setSize(window.innerWidth, window.innerHeight); 
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+        
+        const particlesGeometry = new THREE.BufferGeometry; 
+        const count = 4000; 
+        const positions = new Float32Array(count * 3); 
+        for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 15; } 
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); 
+        
+        // Asignamos el material a la variable global para acceder desde el toggle
+        threeParticleMaterial = new THREE.PointsMaterial({ 
+            size: 0.02, 
+            sizeAttenuation: true, 
+            color: new THREE.Color(document.documentElement.getAttribute('data-theme') === 'light' ? 0x0284c7 : 0x38bdf8),
+            transparent: true,
+            opacity: 0.8
+        }); 
+        
+        const particles = new THREE.Points(particlesGeometry, threeParticleMaterial); 
+        scene.add(particles); 
+        camera.position.z = 6; 
+        
+        const clock = new THREE.Clock(); 
+        const animate = () => { 
+            const elapsedTime = clock.getElapsedTime(); 
+            particles.rotation.y = elapsedTime * 0.03; 
+            particles.rotation.x = elapsedTime * 0.01; 
+            renderer.render(scene, camera); 
+            window.requestAnimationFrame(animate); 
+        }; 
+        animate(); 
+        window.addEventListener('resize', () => { 
+            camera.aspect = window.innerWidth / window.innerHeight; 
+            camera.updateProjectionMatrix(); 
+            renderer.setSize(window.innerWidth, window.innerHeight); 
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+        }); 
+    })();
     </script>
 </body>
 </html>
