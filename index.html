@@ -232,7 +232,7 @@
         }
         
         .modal-carousel { position: relative; width: 100%; height: 300px; background-color: var(--color-bg); }
-        #modal-image { width: 100%; height: 100%; object-fit: cover; }
+        #modal-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; /* Cursor para indicar zoom */ }
         .carousel-arrow { 
             position: absolute; top: 50%; transform: translateY(-50%); 
             background-color: rgba(0,0,0,0.5); color: white; border: none; 
@@ -257,7 +257,7 @@
         .modal-main-content { padding: 2rem; }
         
         .modal-header { display: flex; align-items: flex-end; gap: 1.5rem; margin-bottom: 1.5rem; margin-top: -4rem; position: relative; z-index: 5; }
-        #modal-logo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--color-bg-light); background: var(--color-bg-light); object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        #modal-logo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--color-bg-light); background: var(--color-bg-light); object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: zoom-in; }
         .modal-title-group { flex-grow: 1; margin-bottom: 0.5rem; }
         #modal-name { font-size: 2rem; font-weight: 700; color: var(--color-text); line-height: 1.1; }
         
@@ -360,6 +360,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             object-fit: contain;
             z-index: 10;
+            cursor: zoom-in;
         }
 
         .ruta-semititle {
@@ -388,6 +389,7 @@
             height: 100%;
             object-fit: cover;
             display: none; /* Ocultos por defecto */
+            cursor: zoom-in;
         }
         
         .ruta-slide.active {
@@ -396,6 +398,59 @@
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- NUEVO: ESTILOS GLOBAL LIGHTBOX (VISOR DE IMAGENES GRANDE) --- */
+        #global-lightbox {
+            display: none; /* Oculto por defecto */
+            position: fixed; 
+            z-index: 10001; /* Encima de todo, incluso modales */
+            padding-top: 50px; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.95); /* Fondo muy oscuro */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 1200px;
+            max-height: 90vh;
+            object-fit: contain;
+            animation-name: zoom;
+            animation-duration: 0.6s;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            z-index: 10002;
+        }
+
+        .lightbox-close:hover,
+        .lightbox-close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @keyframes zoom {
+            from {transform:scale(0)} 
+            to {transform:scale(1)}
+        }
 
         /* Fin Estilos Nuevos */
         
@@ -414,6 +469,9 @@
             /* Ajuste móvil botón flotante */
             .pulsing-btn-container { top: 20px; right: 20px; }
             .pulsing-img { width: 60px; height: 60px; }
+            
+            /* Ajuste lightbox movil */
+            .lightbox-content { width: 95%; }
         }
     </style>
 </head>
@@ -448,28 +506,23 @@
         <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Descubriendo talento local...</p> </main>
     </div>
 
-    <!-- NUEVO: BOTÓN PALPITANTE LATERAL -->
+    <!-- BOTÓN PALPITANTE LATERAL -->
     <div id="ruta-btn" class="pulsing-btn-container" title="Ver Ruta Gastronómica">
-        <!-- Reemplaza src con tu archivo: caucasabeapaz.png -->
         <img src="https://raw.githubusercontent.com/sdec-cauca/corredor/main/caucasabeapaz.png" onerror="this.src='https://placehold.co/100x100/38bdf8/FFF?text=Logo+Paz'" alt="Cauca Sabe a Paz" class="pulsing-img">
     </div>
 
-    <!-- NUEVO: MODAL RUTA GASTRONÓMICA -->
+    <!-- MODAL RUTA GASTRONÓMICA -->
     <div id="ruta-modal" class="modal">
         <div class="modal-content ruta-modal-content">
             <div class="modal-close-container" style="top: 10px; right: 10px;">
                 <button id="ruta-close-btn" class="modal-close" style="background: rgba(0,0,0,0.5);">&times;</button>
             </div>
             
-            <!-- Logo mitad dentro mitad afuera -->
             <img src="caucasabeapaz.png" onerror="this.src='https://placehold.co/150x150/38bdf8/FFF?text=Logo+Paz'" class="ruta-logo-floating" alt="Logo Ruta">
 
-            <!-- Semititulo -->
             <h3 class="ruta-semititle">conoce Ruta Gastronómica 1.0</h3>
 
-            <!-- Carrusel específico -->
             <div class="ruta-carousel-container">
-                <!-- Reemplaza src con: slide-1.jpg y slide-2.jpg -->
                 <img src="slide-1.jpg" onerror="this.src='https://placehold.co/600x300/1e293b/FFF?text=Slide+1'" class="ruta-slide active" alt="Slide 1">
                 <img src="slide-2.jpg" onerror="this.src='https://placehold.co/600x300/475569/FFF?text=Slide+2'" class="ruta-slide" alt="Slide 2">
                 
@@ -518,6 +571,12 @@
         </div>
     </div>
 
+    <!-- NUEVO: VISOR DE IMAGENES GLOBAL (LIGHTBOX) -->
+    <div id="global-lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" src="">
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -541,7 +600,7 @@
         const nextBtn = document.getElementById('nextBtn');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         
-        // --- NUEVO LOGICA PARA MODAL RUTA GASTRONOMICA ---
+        // --- LOGICA MODAL RUTA GASTRONOMICA ---
         const rutaBtn = document.getElementById('ruta-btn');
         const rutaModal = document.getElementById('ruta-modal');
         const rutaCloseBtn = document.getElementById('ruta-close-btn');
@@ -550,14 +609,12 @@
         const rutaSlides = document.querySelectorAll('.ruta-slide');
         let rutaIndex = 0;
 
-        // Abrir Modal Ruta
         rutaBtn.addEventListener('click', () => {
             rutaModal.style.display = 'flex';
             setTimeout(() => rutaModal.classList.add('is-active'), 10);
             document.body.style.overflow = 'hidden';
         });
 
-        // Cerrar Modal Ruta
         const closeRutaModal = () => {
             rutaModal.classList.remove('is-active');
             setTimeout(() => { rutaModal.style.display = 'none'; document.body.style.overflow = ''; }, 300);
@@ -565,7 +622,6 @@
         rutaCloseBtn.addEventListener('click', closeRutaModal);
         rutaModal.addEventListener('click', (e) => { if (e.target === rutaModal) closeRutaModal(); });
 
-        // Carrusel Ruta
         const showRutaSlide = (n) => {
             rutaSlides.forEach(slide => slide.classList.remove('active'));
             rutaIndex = (n + rutaSlides.length) % rutaSlides.length;
@@ -573,7 +629,47 @@
         };
         rutaPrev.addEventListener('click', () => showRutaSlide(rutaIndex - 1));
         rutaNext.addEventListener('click', () => showRutaSlide(rutaIndex + 1));
-        // --- FIN LOGICA NUEVA ---
+        
+        // --- NUEVO: LOGICA DE LIGHTBOX GLOBAL PARA IMAGENES ---
+        const lightbox = document.getElementById('global-lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxClose = document.querySelector('.lightbox-close');
+
+        // Escuchar Clicks en todo el documento
+        document.addEventListener('click', (e) => {
+            // Verificamos si lo que se clickeó es una imagen
+            if(e.target.tagName === 'IMG') {
+                
+                // Excepciones: NO abrir lightbox si la imagen actúa como botón principal de navegación
+                // 1. Si es el banner de la tarjeta (queremos que abra el detalle de la empresa)
+                if(e.target.classList.contains('card-banner')) return;
+                
+                // 2. Si es el botón flotante (queremos que abra el modal de ruta)
+                if(e.target.classList.contains('pulsing-img')) return;
+
+                // Si no es una excepción, abrimos el Lightbox
+                e.stopPropagation(); // Evitar que otros eventos se disparen
+                lightbox.style.display = "flex";
+                lightboxImg.src = e.target.src;
+                document.body.style.overflow = 'hidden'; // Bloquear scroll
+            }
+        });
+
+        // Cerrar Lightbox
+        const closeLightbox = () => {
+            lightbox.style.display = "none";
+            // Solo reactivar scroll si ningún otro modal está abierto
+            if(modal.style.display !== 'flex' && rutaModal.style.display !== 'flex') {
+                document.body.style.overflow = ''; 
+            }
+        };
+
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+        // --- FIN LOGICA LIGHTBOX ---
+
 
         // Theme Toggle Logic
         const themeToggleBtn = document.getElementById('theme-toggle');
@@ -586,18 +682,15 @@
                 htmlElement.setAttribute('data-theme', 'light');
                 iconSun.style.display = 'none';
                 iconMoon.style.display = 'block';
-                // Partículas más oscuras para fondo claro
                 if (threeParticleMaterial) threeParticleMaterial.color.setHex(0x0284c7); 
             } else {
                 htmlElement.setAttribute('data-theme', 'dark');
                 iconSun.style.display = 'block';
                 iconMoon.style.display = 'none';
-                // Partículas claras para fondo oscuro
                 if (threeParticleMaterial) threeParticleMaterial.color.setHex(0x38bdf8);
             }
         };
 
-        // Check saved theme
         const savedTheme = localStorage.getItem('theme') || 'dark';
         updateThemeUI(savedTheme);
 
@@ -748,8 +841,8 @@
             items.forEach((item, index) => {
                 const card = document.createElement('div');
                 card.className = 'company-card';
-                card.style.animation = `fadeInModal 0.5s ease-out forwards ${index * 0.05}s`; // Staggered animation
-                card.style.opacity = '0'; // Start hidden for animation
+                card.style.animation = `fadeInModal 0.5s ease-out forwards ${index * 0.05}s`; 
+                card.style.opacity = '0'; 
                 card.innerHTML = `
                     <img loading="lazy" src="${item.imagenes?.[0] || 'https://placehold.co/600x400/1e293b/FFF?text=Sin+Imagen'}" alt="Banner" class="card-banner">
                     <div class="card-content">
@@ -811,7 +904,7 @@
             if (item.instagram) socials.innerHTML += `<a href="${item.instagram}" target="_blank" class="social-link" title="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg></a>`;
             if (item.facebook) socials.innerHTML += `<a href="${item.facebook}" target="_blank" class="social-link" title="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.04c-5.52 0-10 4.48-10 10s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm2.25 10.28h-1.5v4.5h-2.25v-4.5h-1.5v-2.03h1.5v-1.25c0-1.1.4-2.5 2.5-2.5h1.75v2.03h-1.25c-.25 0-.5.12-.5.5v1.22h1.75l-.25 2.03z"/></svg></a>`;
             updateCarouselImage(); 
-            modal.style.display = 'flex'; // Force display flex before class for animation
+            modal.style.display = 'flex'; 
             setTimeout(() => modal.classList.add('is-active'), 10);
             document.body.style.overflow = 'hidden';
         };
@@ -880,7 +973,6 @@
         for (let i = 0; i < count * 3; i++) { positions[i] = (Math.random() - 0.5) * 15; } 
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); 
         
-        // Asignamos el material a la variable global para acceder desde el toggle
         threeParticleMaterial = new THREE.PointsMaterial({ 
             size: 0.02, 
             sizeAttenuation: true, 
