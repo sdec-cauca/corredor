@@ -245,7 +245,7 @@
         .showcase-grid.view-list .company-name { margin-top: 0; }
         .showcase-grid.view-list .card-footer { margin-top: 0; width: auto; gap: 2rem; }
 
-        /* --- MODAL GENERAL --- */
+        /* --- MODAL GENERAL (CORREGIDO) --- */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal.is-active { display: flex; animation: fadeInModal 0.3s ease-out; }
         .modal-content { 
@@ -282,23 +282,60 @@
         }
         .modal-close:hover { background: #ef4444; }
 
-        .modal-main-content { padding: 2rem; }
+        .modal-main-content { padding: 0 2rem 2rem 2rem; /* Quitamos padding superior para manejarlo con el header */ }
         
-        .modal-header { display: flex; align-items: flex-end; gap: 1.5rem; margin-bottom: 1.5rem; margin-top: -4rem; position: relative; z-index: 5; }
-        #modal-logo { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--color-bg-light); background: var(--color-bg-light); object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: zoom-in; }
-        .modal-title-group { flex-grow: 1; margin-bottom: 0.5rem; }
-        #modal-name { font-size: 2rem; font-weight: 700; color: var(--color-text); line-height: 1.1; }
+        /* --- ESTILOS DEL HEADER DEL MODAL (CORREGIDOS) --- */
+        .modal-header { 
+            display: flex; 
+            align-items: flex-start; /* Alineación superior para que el texto no baile */
+            gap: 1.5rem; 
+            margin-bottom: 1.5rem; 
+            margin-top: 0; /* Quitamos el margen negativo del contenedor */
+            position: relative; 
+            z-index: 5; 
+            padding-right: 1rem;
+        }
+
+        #modal-logo { 
+            width: 120px; 
+            height: 120px; 
+            min-width: 120px; /* Evita que se aplaste */
+            border-radius: 50%; 
+            border: 5px solid var(--color-bg-light); /* Borde más grueso para separar del banner */
+            background: var(--color-bg-light); 
+            object-fit: cover; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+            cursor: zoom-in; 
+            margin-top: -60px; /* AQUÍ está la clave: solo subimos el logo */
+        }
+
+        .modal-title-group { 
+            flex-grow: 1; 
+            margin-top: 1rem; /* Empujamos el texto hacia abajo para que quede en lo blanco */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #modal-name { 
+            font-size: 2.2rem; /* Título más grande y legible */
+            font-weight: 700; 
+            color: var(--color-text); 
+            line-height: 1.1; 
+            margin-bottom: 0.5rem;
+        }
         
         #download-pdf-btn { 
             background-color: var(--color-bg); color: var(--color-primary); 
             border: 1px solid var(--color-border);
-            cursor: pointer; padding: 0.6rem; border-radius: 50%; 
+            cursor: pointer; padding: 0.8rem; border-radius: 50%; 
             transition: all 0.3s; display: flex; align-items: center; justify-content: center; 
-            margin-bottom: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 1rem; /* Alineado con el texto */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         #download-pdf-btn:hover { background-color: var(--color-primary); color: #fff; transform: translateY(-3px); }
         
-        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; margin-top: 1.5rem; }
+        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.2rem; }
         .product-badge { background-color: var(--color-bg); color: var(--color-text); padding: 0.35rem 0.9rem; border-radius: 99px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--color-border); }
         
         #modal-description { color: var(--color-text-muted); margin-bottom: 2rem; line-height: 1.7; font-size: 1rem; }
@@ -396,9 +433,14 @@
             .search-input { width: 100%; } 
             .view-controls { width: 100%; justify-content: space-between; margin-top: 0.5rem; } 
             .modal-grid-info { grid-template-columns: 1fr; } 
-            #modal-name { font-size: 1.6rem; } 
-            .modal-header { flex-direction: column; align-items: center; text-align: center; margin-top: -3rem; }
-            #modal-logo { margin-bottom: 0.5rem; }
+            
+            /* Ajustes Modal Mobile */
+            .modal-header { flex-direction: column; align-items: center; text-align: center; margin-top: 0; padding-right: 0; }
+            #modal-logo { margin-top: -50px; width: 100px; height: 100px; }
+            .modal-title-group { margin-top: 0.5rem; align-items: center; }
+            #modal-name { font-size: 1.8rem; }
+            #download-pdf-btn { margin-top: 0.5rem; }
+            
             .showcase-grid.view-list .card-content { flex-wrap: wrap; gap: 1rem; }
             .showcase-grid.view-list .card-footer { width: 100%; }
             .pulsing-btn-container { top: 20px; right: 20px; }
