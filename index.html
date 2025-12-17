@@ -35,7 +35,7 @@
             --color-bg-card: #ffffff;
             --color-text: #1e293b;
             --color-text-muted: #64748b;
-            --color-primary: #0284c7; /* Azul más oscuro para contraste en blanco */
+            --color-primary: #0284c7;
             --color-secondary: #6366f1;
             --color-border: rgba(0, 0, 0, 0.7);
             --color-glass: rgba(255, 255, 255, 0.85);
@@ -147,7 +147,6 @@
         .control-btn.active { background-color: var(--color-primary); border-color: var(--color-primary); color: #fff; }
         .control-btn.active svg { opacity: 1; }
         
-        /* Botón de Tema específico */
         #theme-toggle svg { fill: none; stroke: currentColor; stroke-width: 2; }
         #theme-toggle:hover svg { transform: rotate(15deg); }
 
@@ -165,7 +164,6 @@
             display: flex; flex-direction: column; 
             position: relative; 
             box-shadow: var(--shadow-card);
-            border: 1px solid var(--color-border);
         }
         .company-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); border-color: var(--color-primary); }
         
@@ -201,7 +199,7 @@
         .showcase-grid.view-mosaic .company-card:hover { transform: scale(1.02); z-index: 10; }
         .showcase-grid.view-mosaic .card-content { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); /* Siempre oscuro para contraste de texto blanco */
+            background: rgba(0,0,0,0.6); 
             opacity: 0; transition: opacity 0.3s ease; 
             justify-content: center; align-items: center; text-align: center; padding: 1rem; 
         }
@@ -219,7 +217,7 @@
         .showcase-grid.view-list .company-name { margin-top: 0; }
         .showcase-grid.view-list .card-footer { margin-top: 0; width: auto; gap: 2rem; }
 
-        /* --- MODAL --- */
+        /* --- MODAL GENERAL --- */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
         .modal.is-active { display: flex; animation: fadeInModal 0.3s ease-out; }
         .modal-content { 
@@ -241,12 +239,13 @@
             cursor: pointer; width: 44px; height: 44px; border-radius: 50%; 
             font-size: 1.5rem; display: flex; align-items: center; justify-content: center; 
             transition: all 0.2s; backdrop-filter: blur(4px);
+            z-index: 10;
         }
         .carousel-arrow:hover { background-color: var(--color-primary); }
         .carousel-arrow.prev { left: 1rem; }
         .carousel-arrow.next { right: 1rem; }
         
-        .modal-close-container { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
+        .modal-close-container { position: absolute; top: 1rem; right: 1rem; z-index: 20; }
         .modal-close { 
             background: rgba(0,0,0,0.3); border: none; color: #fff; 
             width: 36px; height: 36px; border-radius: 50%; 
@@ -291,6 +290,114 @@
         @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
+
+        /* --- NUEVO: ESTILOS BOTÓN FLOTANTE Y SU MODAL --- */
+        
+        /* Contenedor del Botón Palpitante */
+        .pulsing-btn-container {
+            position: fixed;
+            bottom: 30px; /* Separación del fondo */
+            right: 30px;  /* Separación del lado derecho */
+            z-index: 999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pulsing-img {
+            width: 80px; /* Tamaño agradable */
+            height: 80px;
+            object-fit: contain;
+            border-radius: 50%;
+            /* Animación de latido */
+            animation: pulse-effect 2s infinite;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease;
+            background: rgba(255, 255, 255, 0.1); /* Fondo sutil para que el PNG resalte */
+            backdrop-filter: blur(4px);
+            border: 2px solid var(--color-primary);
+        }
+
+        .pulsing-img:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes pulse-effect {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 20px rgba(56, 189, 248, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+            }
+        }
+
+        /* Estilos específicos para el Modal de Ruta Gastronómica */
+        .ruta-modal-content {
+            padding-top: 60px !important; /* Espacio para el logo sobresaliente */
+            overflow: visible !important; /* Permitir que el logo salga del contenedor */
+            text-align: center;
+            max-width: 500px; /* Modal un poco más angosto para este propósito */
+        }
+
+        .ruta-logo-floating {
+            width: 120px;
+            height: 120px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Mitad dentro, mitad fuera */
+            background-color: var(--color-bg-light);
+            border-radius: 50%;
+            padding: 10px;
+            border: 4px solid var(--color-primary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            object-fit: contain;
+            z-index: 10;
+        }
+
+        .ruta-semititle {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 1rem;
+        }
+
+        .ruta-carousel-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: #000;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .ruta-slide {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none; /* Ocultos por defecto */
+        }
+        
+        .ruta-slide.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Fin Estilos Nuevos */
         
         @media (max-width: 640px) { 
             .header h1 { font-size: 2.2rem; } 
@@ -303,6 +410,10 @@
             #modal-logo { margin-bottom: 0.5rem; }
             .showcase-grid.view-list .card-content { flex-wrap: wrap; gap: 1rem; }
             .showcase-grid.view-list .card-footer { width: 100%; }
+            
+            /* Ajuste móvil botón flotante */
+            .pulsing-btn-container { bottom: 20px; right: 20px; }
+            .pulsing-img { width: 60px; height: 60px; }
         }
     </style>
 </head>
@@ -324,14 +435,11 @@
             
             <div class="view-controls">
                 <button id="view-card-btn" class="control-btn active" title="Vista de Tarjeta"> <svg fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg> </button>
-                <button id="view-mosaic-btn" class="control-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
+                <button id="view-mosaic-btn" class="control-btn" title="Vista de Mosaico"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm.5 3.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM4.5 10a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zM8.5 5.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5-4.5a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm-4.5 9a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2zm4.5 0a.5.5 0 00-.5.5v2a.5.5 0 00.5.5h2a.5.5 0 00.5-.5v-2a.5.5 0 00-.5-.5h-2z" clip-rule="evenodd"></path></svg> </button>
                 <button id="view-list-btn" class="control-btn" title="Vista de Lista"> <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg> </button>
                 
-                <!-- Botón de Modo Claro / Oscuro -->
                 <button id="theme-toggle" class="control-btn" title="Cambiar Tema">
-                    <!-- Icono Sol (para cuando está oscuro) -->
                     <svg id="icon-sun" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
-                    <!-- Icono Luna (para cuando está claro) -->
                     <svg id="icon-moon" class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
                 </button>
             </div>
@@ -340,6 +448,38 @@
         <main id="showcase-grid" class="showcase-grid"> <p class="loading-message">Descubriendo talento local...</p> </main>
     </div>
 
+    <!-- NUEVO: BOTÓN PALPITANTE LATERAL -->
+    <div id="ruta-btn" class="pulsing-btn-container" title="Ver Ruta Gastronómica">
+        <!-- Reemplaza src con tu archivo: caucasabeapaz.png -->
+        <img src="caucasabeapaz.png" onerror="this.src='https://placehold.co/100x100/38bdf8/FFF?text=Logo+Paz'" alt="Cauca Sabe a Paz" class="pulsing-img">
+    </div>
+
+    <!-- NUEVO: MODAL RUTA GASTRONÓMICA -->
+    <div id="ruta-modal" class="modal">
+        <div class="modal-content ruta-modal-content">
+            <div class="modal-close-container" style="top: 10px; right: 10px;">
+                <button id="ruta-close-btn" class="modal-close" style="background: rgba(0,0,0,0.5);">&times;</button>
+            </div>
+            
+            <!-- Logo mitad dentro mitad afuera -->
+            <img src="caucasabeapaz.png" onerror="this.src='https://placehold.co/150x150/38bdf8/FFF?text=Logo+Paz'" class="ruta-logo-floating" alt="Logo Ruta">
+
+            <!-- Semititulo -->
+            <h3 class="ruta-semititle">conoce Ruta Gastronómica 1.0</h3>
+
+            <!-- Carrusel específico -->
+            <div class="ruta-carousel-container">
+                <!-- Reemplaza src con: slide-1.jpg y slide-2.jpg -->
+                <img src="slide-1.jpg" onerror="this.src='https://placehold.co/600x300/1e293b/FFF?text=Slide+1'" class="ruta-slide active" alt="Slide 1">
+                <img src="slide-2.jpg" onerror="this.src='https://placehold.co/600x300/475569/FFF?text=Slide+2'" class="ruta-slide" alt="Slide 2">
+                
+                <button class="carousel-arrow prev" id="ruta-prev">&lt;</button>
+                <button class="carousel-arrow next" id="ruta-next">&gt;</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ORIGINAL DE EMPRENDIMIENTOS -->
     <div id="company-modal" class="modal">
         <div class="modal-content">
             <div class="modal-close-container">
@@ -401,6 +541,40 @@
         const nextBtn = document.getElementById('nextBtn');
         const downloadPdfBtn = document.getElementById('download-pdf-btn');
         
+        // --- NUEVO LOGICA PARA MODAL RUTA GASTRONOMICA ---
+        const rutaBtn = document.getElementById('ruta-btn');
+        const rutaModal = document.getElementById('ruta-modal');
+        const rutaCloseBtn = document.getElementById('ruta-close-btn');
+        const rutaPrev = document.getElementById('ruta-prev');
+        const rutaNext = document.getElementById('ruta-next');
+        const rutaSlides = document.querySelectorAll('.ruta-slide');
+        let rutaIndex = 0;
+
+        // Abrir Modal Ruta
+        rutaBtn.addEventListener('click', () => {
+            rutaModal.style.display = 'flex';
+            setTimeout(() => rutaModal.classList.add('is-active'), 10);
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Cerrar Modal Ruta
+        const closeRutaModal = () => {
+            rutaModal.classList.remove('is-active');
+            setTimeout(() => { rutaModal.style.display = 'none'; document.body.style.overflow = ''; }, 300);
+        };
+        rutaCloseBtn.addEventListener('click', closeRutaModal);
+        rutaModal.addEventListener('click', (e) => { if (e.target === rutaModal) closeRutaModal(); });
+
+        // Carrusel Ruta
+        const showRutaSlide = (n) => {
+            rutaSlides.forEach(slide => slide.classList.remove('active'));
+            rutaIndex = (n + rutaSlides.length) % rutaSlides.length;
+            rutaSlides[rutaIndex].classList.add('active');
+        };
+        rutaPrev.addEventListener('click', () => showRutaSlide(rutaIndex - 1));
+        rutaNext.addEventListener('click', () => showRutaSlide(rutaIndex + 1));
+        // --- FIN LOGICA NUEVA ---
+
         // Theme Toggle Logic
         const themeToggleBtn = document.getElementById('theme-toggle');
         const iconSun = document.getElementById('icon-sun');
