@@ -270,7 +270,7 @@
         }
         #download-pdf-btn:hover { background-color: var(--color-primary); color: #fff; transform: translateY(-3px); }
         
-        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .product-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; margin-top: 1.5rem; }
         .product-badge { background-color: var(--color-bg); color: var(--color-text); padding: 0.35rem 0.9rem; border-radius: 99px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--color-border); }
         
         #modal-description { color: var(--color-text-muted); margin-bottom: 2rem; line-height: 1.7; font-size: 1rem; }
@@ -455,6 +455,12 @@
         /* Fin Estilos Nuevos */
         
         @media (max-width: 640px) { 
+            .product-badges{
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                aligns-items: center;
+            }
             .header h1 { font-size: 2.2rem; } 
             .filters-container { flex-direction: column; align-items: stretch; gap: 0.8rem; }
             .search-input { width: 100%; } 
@@ -472,6 +478,8 @@
             
             /* Ajuste lightbox movil */
             .lightbox-content { width: 95%; }
+
+            
         }
     </style>
 </head>
