@@ -72,18 +72,46 @@
             z-index: 1;
         }
 
-        /* --- HEADER --- */
-        .header { text-align: center; padding: 4rem 0 3rem 0; }
+        /* --- HEADER & LOGO --- */
+        .header { text-align: center; padding: 3rem 0 3rem 0; }
+        
+        /* Estilos del Logo Principal */
+        .header-logo {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%; /* Círculo perfecto */
+            object-fit: cover;
+            /* Borde suave usando color primario con transparencia */
+            border: 4px solid rgba(56, 189, 248, 0.3); 
+            /* Sombra suave */
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15); 
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .header-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);
+            border-color: var(--color-primary);
+        }
+
         .header h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
+            /* Estilos base */
+            font-weight: 800;
             letter-spacing: -1px;
             background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
             drop-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            
+            /* MEJORA PARA PC: Tamaño grande y sombra brillante */
+            font-size: 5rem; 
+            text-transform: uppercase;
+            filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+            line-height: 1.1;
         }
+        
         .header p { font-size: 1.2rem; color: var(--color-text-muted); font-weight: 300; }
 
         /* --- CONTROLS & FILTERS --- */
@@ -232,7 +260,7 @@
         }
         
         .modal-carousel { position: relative; width: 100%; height: 300px; background-color: var(--color-bg); }
-        #modal-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; /* Cursor para indicar zoom */ }
+        #modal-image { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
         .carousel-arrow { 
             position: absolute; top: 50%; transform: translateY(-50%); 
             background-color: rgba(0,0,0,0.5); color: white; border: none; 
@@ -291,177 +319,79 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; }
 
-        /* --- NUEVO: ESTILOS BOTÓN FLOTANTE Y SU MODAL --- */
-        
-        /* Contenedor del Botón Palpitante */
+        /* --- BOTÓN FLOTANTE Y SU MODAL --- */
         .pulsing-btn-container {
-            position: fixed;
-            top: 30px; /* Separación del fondo */
-            right: 30px;  /* Separación del lado derecho */
-            z-index: 999;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 30px; right: 30px; z-index: 999;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
         .pulsing-img {
-            width: 80px; /* Tamaño agradable */
-            height: 80px;
-            object-fit: contain;
-            border-radius: 50%;
-            /* Animación de latido */
-            animation: pulse-effect 2s infinite;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
-            transition: transform 0.3s ease;
-            background: rgba(255, 255, 255, 0.1); /* Fondo sutil para que el PNG resalte */
-            backdrop-filter: blur(4px);
-            border: 2px solid var(--color-primary);
+            width: 80px; height: 80px; object-fit: contain; border-radius: 50%;
+            animation: pulse-effect 2s infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+            transition: transform 0.3s ease; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px); border: 2px solid var(--color-primary);
         }
-
-        .pulsing-img:hover {
-            transform: scale(1.1);
-        }
+        .pulsing-img:hover { transform: scale(1.1); }
 
         @keyframes pulse-effect {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
-            }
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 20px rgba(56, 189, 248, 0);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
-            }
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(56, 189, 248, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
         }
 
-        /* Estilos específicos para el Modal de Ruta Gastronómica */
         .ruta-modal-content {
-            padding-top: 60px !important; /* Espacio para el logo sobresaliente */
-            overflow: visible !important; /* Permitir que el logo salga del contenedor */
-            text-align: center;
-            max-width: 700px; /* Modal un poco más angosto para este propósito */
+            padding-top: 60px !important; overflow: visible !important; text-align: center; max-width: 700px;
         }
 
         .ruta-logo-floating {
-            width: 120px;
-            height: 120px;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Mitad dentro, mitad fuera */
-            background-color: var(--color-bg-light);
-            border-radius: 50%;
-            padding: 10px;
-            border: 4px solid var(--color-primary);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            object-fit: contain;
-            z-index: 10;
-            cursor: zoom-in;
+            width: 120px; height: 120px; position: absolute; top: 0; left: 50%;
+            transform: translate(-50%, -50%); background-color: var(--color-bg-light);
+            border-radius: 50%; padding: 10px; border: 4px solid var(--color-primary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); object-fit: contain; z-index: 10; cursor: zoom-in;
         }
 
         .ruta-semititle {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--color-primary);
-            margin-top: 2rem;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 1rem;
+            font-size: 1.5rem; font-weight: 600; color: var(--color-primary);
+            margin-top: 2rem; margin-bottom: 1.5rem; text-transform: uppercase;
+            letter-spacing: 1px; padding: 0 1rem;
         }
 
         .ruta-carousel-container {
-            width: 100%;
-            height: auto;
-            position: relative;
-            background: #000;
-            border-bottom-left-radius: var(--border-radius);
-            border-bottom-right-radius: var(--border-radius);
+            width: 100%; height: auto; position: relative; background: #000;
+            border-bottom-left-radius: var(--border-radius); border-bottom-right-radius: var(--border-radius);
             overflow: hidden;
         }
 
-        .ruta-slide {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: none; /* Ocultos por defecto */
-            cursor: zoom-in;
-        }
-        
-        .ruta-slide.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
+        .ruta-slide { width: 100%; height: 100%; object-fit: cover; display: none; cursor: zoom-in; }
+        .ruta-slide.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- NUEVO: ESTILOS GLOBAL LIGHTBOX (VISOR DE IMAGENES GRANDE) --- */
+        /* --- LIGHTBOX --- */
         #global-lightbox {
-            display: none; /* Oculto por defecto */
-            position: fixed; 
-            z-index: 10001; /* Encima de todo, incluso modales */
-            padding-top: 50px; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.95); /* Fondo muy oscuro */
-            align-items: center;
-            justify-content: center;
+            display: none; position: fixed; z-index: 10001; padding-top: 50px; 
+            left: 0; top: 0; width: 100%; height: 100%; overflow: auto; 
+            background-color: rgba(0,0,0,0.95); align-items: center; justify-content: center;
         }
+        .lightbox-content { margin: auto; display: block; width: 80%; max-width: 1200px; max-height: 90vh; object-fit: contain; animation-name: zoom; animation-duration: 0.6s; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        .lightbox-close { position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; transition: 0.3s; cursor: pointer; z-index: 10002; }
+        .lightbox-close:hover { color: #bbb; }
+        @keyframes zoom { from {transform:scale(0)} to {transform:scale(1)} }
 
-        .lightbox-content {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 1200px;
-            max-height: 90vh;
-            object-fit: contain;
-            animation-name: zoom;
-            animation-duration: 0.6s;
-            border-radius: 8px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-            z-index: 10002;
-        }
-
-        .lightbox-close:hover,
-        .lightbox-close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        @keyframes zoom {
-            from {transform:scale(0)} 
-            to {transform:scale(1)}
-        }
-
-        /* Fin Estilos Nuevos */
-        
+        /* --- MOBILE MEDIA QUERY (Conservando lo que te gusta) --- */
         @media (max-width: 640px) { 
-            .product-badges{
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                aligns-items: center;
+            /* En móvil restauramos el título a un tamaño normal y el logo más pequeño */
+            .header h1 { 
+                font-size: 2.2rem; 
+                filter: none; /* Quitamos el brillo excesivo en móvil */
+                text-transform: none; /* Quitamos mayúsculas forzadas en móvil */
+            } 
+            .header-logo {
+                width: 90px;
+                height: 90px;
+                margin-bottom: 1rem;
             }
-            .header h1 { font-size: 2.2rem; } 
+
+            .product-badges{ display: flex; flex-direction: column; justify-content: center; aligns-items: center; }
             .filters-container { flex-direction: column; align-items: stretch; gap: 0.8rem; }
             .search-input { width: 100%; } 
             .view-controls { width: 100%; justify-content: space-between; margin-top: 0.5rem; } 
@@ -471,15 +401,9 @@
             #modal-logo { margin-bottom: 0.5rem; }
             .showcase-grid.view-list .card-content { flex-wrap: wrap; gap: 1rem; }
             .showcase-grid.view-list .card-footer { width: 100%; }
-            
-            /* Ajuste móvil botón flotante */
             .pulsing-btn-container { top: 20px; right: 20px; }
             .pulsing-img { width: 60px; height: 60px; }
-            
-            /* Ajuste lightbox movil */
             .lightbox-content { width: 95%; }
-
-            
         }
     </style>
 </head>
@@ -489,6 +413,9 @@
 
     <div class="container">
         <header class="header">
+            <!-- LOGO PRINCIPAL AGREGADO -->
+            <img src="vitrina-comercial.png" onerror="this.src='https://placehold.co/150x150/1e293b/38bdf8?text=Logo+App'" alt="Logo Principal" class="header-logo">
+            
             <h1>Vitrina Comercial</h1>
             <p>Conectando ideas, impulsando el futuro.</p>
         </header>
@@ -592,7 +519,6 @@
     <script>
     const googleSheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQgFVcLcGs8Ebn-R7irVhQtOEScoELMKTNmi3bu4OSQVzk5zSRPqRNWmI-t1xwdSQ/pub?output=csv';
 
-    // Variable global para controlar partículas ThreeJS
     let threeParticleMaterial;
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -638,35 +564,24 @@
         rutaPrev.addEventListener('click', () => showRutaSlide(rutaIndex - 1));
         rutaNext.addEventListener('click', () => showRutaSlide(rutaIndex + 1));
         
-        // --- NUEVO: LOGICA DE LIGHTBOX GLOBAL PARA IMAGENES ---
+        // --- LOGICA LIGHTBOX GLOBAL ---
         const lightbox = document.getElementById('global-lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxClose = document.querySelector('.lightbox-close');
 
-        // Escuchar Clicks en todo el documento
         document.addEventListener('click', (e) => {
-            // Verificamos si lo que se clickeó es una imagen
             if(e.target.tagName === 'IMG') {
-                
-                // Excepciones: NO abrir lightbox si la imagen actúa como botón principal de navegación
-                // 1. Si es el banner de la tarjeta (queremos que abra el detalle de la empresa)
                 if(e.target.classList.contains('card-banner')) return;
-                
-                // 2. Si es el botón flotante (queremos que abra el modal de ruta)
                 if(e.target.classList.contains('pulsing-img')) return;
-
-                // Si no es una excepción, abrimos el Lightbox
-                e.stopPropagation(); // Evitar que otros eventos se disparen
+                e.stopPropagation(); 
                 lightbox.style.display = "flex";
                 lightboxImg.src = e.target.src;
-                document.body.style.overflow = 'hidden'; // Bloquear scroll
+                document.body.style.overflow = 'hidden'; 
             }
         });
 
-        // Cerrar Lightbox
         const closeLightbox = () => {
             lightbox.style.display = "none";
-            // Solo reactivar scroll si ningún otro modal está abierto
             if(modal.style.display !== 'flex' && rutaModal.style.display !== 'flex') {
                 document.body.style.overflow = ''; 
             }
@@ -676,7 +591,6 @@
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) closeLightbox();
         });
-        // --- FIN LOGICA LIGHTBOX ---
 
 
         // Theme Toggle Logic
